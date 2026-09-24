@@ -103,23 +103,27 @@ export function Intake() {
       </label>
       <label className="field" htmlFor="adjunto">
         <span>Adjunto, opcional</span>
-        <input
-          id="adjunto"
-          type="file"
-          onChange={(event) => {
-            const file = event.target.files?.[0];
-            if (!file) {
-              setAttachment(null);
-              return;
-            }
-            const extension = file.name.includes(".") ? (file.name.split(".").pop() ?? "") : "";
-            setAttachment({
-              bytes: file.size,
-              contentType: file.type || "application/octet-stream",
-              extension: extension.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 8),
-            });
-          }}
-        />
+        <span className="file-row">
+          <input
+            id="adjunto"
+            className="file-input"
+            type="file"
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              if (!file) {
+                setAttachment(null);
+                return;
+              }
+              const extension = file.name.includes(".") ? (file.name.split(".").pop() ?? "") : "";
+              setAttachment({
+                bytes: file.size,
+                contentType: file.type || "application/octet-stream",
+                extension: extension.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 8),
+              });
+            }}
+          />
+          <span className="file-face">{attachment ? "Archivo elegido" : "Elegir archivo"}</span>
+        </span>
         <small>
           {attachment
             ? `Se registrará un adjunto ${attachment.extension ? `.${attachment.extension}` : ""} de ${formatBytes(attachment.bytes)}. El contenido no sale de este navegador.`
