@@ -71,6 +71,8 @@ export interface AgentStep {
 export interface CaseRecord {
   id: string;
   province: string;
+  departamento: string;
+  departamentoId: string;
   mode: "simulacro" | "asistido";
   modeNote: string;
   status: "listo";

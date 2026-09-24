@@ -1,12 +1,17 @@
 import type { Signals } from "./assess";
-import { describeJurisdiction } from "./jurisdictions";
+import { localProtectionOffice } from "./jurisdictions";
 import type { Channel, RoutePlan } from "./types";
 
 const DUTY =
   "El artículo 30 de la Ley 26.061 prevé que el personal de establecimientos educativos y de salud, públicos o privados, y los funcionarios públicos que conozcan una vulneración de derechos de niñas, niños o adolescentes la comuniquen a la autoridad local de protección. El decreto reglamentario incluye también los derechos amenazados.";
 
-export function buildRoute(signals: Signals, province: string, mentionsAdultWoman: boolean): RoutePlan {
-  const place = describeJurisdiction(province);
+export function buildRoute(
+  signals: Signals,
+  province: string,
+  mentionsAdultWoman: boolean,
+  departamento = "",
+): RoutePlan {
+  const place = localProtectionOffice(province, departamento);
   const emergency = signals.severity === "emergencia";
   const formal = emergency || signals.sexual || signals.physical || signals.graphic;
   const channels: Channel[] = [];
@@ -89,7 +94,9 @@ export function buildRoute(signals: Signals, province: string, mentionsAdultWoma
     signals.withholdingIntent
       ? "Si hay miedo de denunciar, es entendible. Esta mesa no arma un camino para evitar la comunicación."
       : "",
-    `${place.authority} es la referencia de protección de derechos para ${place.label}.`,
+    departamento.trim()
+      ? `${place.authority} es la referencia de protección de derechos en ${departamento.trim()}.`
+      : `${place.authority} es la referencia de protección de derechos para ${place.label}.`,
     "La línea 102 orienta en todo el país.",
   ]
     .filter(Boolean)

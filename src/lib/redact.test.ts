@@ -68,6 +68,18 @@ describe("redact", () => {
     assert.match(bare.text, /\[nombre omitido\]/);
   });
 
+  it("turns a name that is the object of a kinship into a neutral role", () => {
+    const { text, redactions } = redact("El padrastro de Martina Gómez le pegó.");
+    assert.equal(/martina|gómez|gomez/i.test(text), false);
+    assert.equal(/adulto del hogar/i.test(text), false);
+    assert.match(text, /el padrastro de la niña/i);
+    assert.ok(redactions.some((item) => item.kind === "nombre" && item.replacement === "la niña"));
+
+    const uncle = redact("El padrastro del hogar, no: el tío de Sofía Ledesma.");
+    assert.equal(/sofía|sofia|ledesma/i.test(uncle.text), false);
+    assert.match(uncle.text, /tío de la niña/i);
+  });
+
   it("labels the adult in the household and the child by the nearest role", () => {
     const adult = redact("La madre Marta Gómez le pega al nene.");
     assert.equal(/marta|gómez/i.test(adult.text), false);

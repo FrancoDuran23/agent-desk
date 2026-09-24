@@ -68,6 +68,23 @@ export function isProvince(value: string): boolean {
   return normalizeProvince(value) !== "";
 }
 
+export function localProtectionOffice(province: string, departamento: string): Jurisdiction {
+  const base = describeJurisdiction(province);
+  const name = departamento.trim();
+  if (!name) return base;
+  const canonical = normalizeProvince(province);
+  const authority =
+    canonical === "Ciudad Autónoma de Buenos Aires"
+      ? `Consejo de los Derechos de Niñas, Niños y Adolescentes – ${name}`
+      : `Servicio Local de Protección de Derechos – ${name}`;
+  const place = canonical || "tu provincia";
+  return {
+    label: base.label,
+    authority,
+    note: `El aviso va al servicio local de ${name}, en ${place}. Confirmá la sede vigente antes de un envío formal.`,
+  };
+}
+
 export function describeJurisdiction(province: string): Jurisdiction {
   const canonical = normalizeProvince(province);
   if (!canonical) {

@@ -1,10 +1,11 @@
 "use client";
 
+import { departamentosDe, resolveLugar } from "@/lib/geo";
 import { PROVINCES } from "@/lib/jurisdictions";
 import { withBase } from "@/lib/paths";
 import type { AttachmentMeta } from "@/lib/types";
 import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 
 const EXAMPLES = [
   {
@@ -25,9 +26,42 @@ export function Intake() {
   const router = useRouter();
   const [narrative, setNarrative] = useState("");
   const [province, setProvince] = useState("");
+  const [departamento, setDepartamento] = useState("");
+  const [lugarNota, setLugarNota] = useState<string | null>(null);
+  const [geoState, setGeoState] = useState<"idle" | "buscando" | "lista" | "error">("idle");
   const [attachment, setAttachment] = useState<AttachmentMeta | null>(null);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const opciones = useMemo(() => departamentosDe(province), [province]);
+
+  function usarUbicacion() {
+    if (!navigator.geolocation) {
+      setGeoState("error");
+      setLugarNota("Este navegador no puede compartir la ubicación. Elegí el departamento en la lista.");
+      return;
+    }
+    setGeoState("buscando");
+    setLugarNota("Buscando el departamento. El punto exacto no se guarda.");
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lugar = resolveLugar(position.coords.latitude, position.coords.longitude);
+        if (!lugar) {
+          setGeoState("error");
+          setLugarNota("No encontramos un departamento de Argentina para ese punto. Elegilo en la lista.");
+          return;
+        }
+        setProvince(lugar.provincia);
+        setDepartamento(lugar.departamento);
+        setGeoState("lista");
+        setLugarNota(`${lugar.departamento}, ${lugar.provincia}. No guardamos el punto exacto.`);
+      },
+      () => {
+        setGeoState("error");
+        setLugarNota("No se compartió la ubicación. Podés elegir el departamento en la lista.");
+      },
+      { enableHighAccuracy: false, timeout: 8000, maximumAge: 60_000 },
+    );
+  }
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -41,6 +75,7 @@ export function Intake() {
         body: JSON.stringify({
           narrative,
           province,
+          departamento,
           attachment,
         }),
       });
@@ -89,18 +124,58 @@ export function Intake() {
           ))}
         </div>
       </div>
-      <label className="field" htmlFor="provincia">
-        <span>Jurisdicción</span>
-        <select id="provincia" name="provincia" value={province} onChange={(event) => setProvince(event.target.value)}>
-          <option value="">Argentina, sin provincia</option>
-          {PROVINCES.map((item) => (
-            <option key={item} value={item}>
-              {item}
-            </option>
-          ))}
-        </select>
-        <small>Si elegís provincia, el aviso nombra al organismo de niñez de esa jurisdicción.</small>
-      </label>
+      <div className="lugar">
+        <label className="field" htmlFor="provincia">
+          <span>Provincia</span>
+          <select
+            id="provincia"
+            name="provincia"
+            value={province}
+            onChange={(event) => {
+              setProvince(event.target.value);
+              setDepartamento("");
+              setLugarNota(null);
+              setGeoState("idle");
+            }}
+          >
+            <option value="">Elegí una provincia</option>
+            {PROVINCES.map((item) => (
+              <option key={item} value={item}>
+                {item}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="field" htmlFor="departamento">
+          <span>Departamento</span>
+          <select
+            id="departamento"
+            name="departamento"
+            value={departamento}
+            required={Boolean(province)}
+            disabled={!province}
+            onChange={(event) => {
+              setDepartamento(event.target.value);
+              setGeoState("lista");
+              setLugarNota(null);
+            }}
+          >
+            <option value="">{province ? "Elegí un departamento" : "Primero, la provincia"}</option>
+            {opciones.map((item) => (
+              <option key={item.id} value={item.nombre}>
+                {item.nombre}
+              </option>
+            ))}
+          </select>
+        </label>
+        <button className="geo-btn" type="button" onClick={usarUbicacion} disabled={geoState === "buscando"}>
+          {geoState === "buscando" ? "Buscando…" : "Usar mi ubicación"}
+        </button>
+        <p className="lugar-note">
+          {lugarNota ??
+            "Solo se envían la provincia y el departamento. La ubicación exacta no sale de este navegador ni se guarda."}
+        </p>
+      </div>
       <label className="field" htmlFor="adjunto">
         <span>Adjunto, opcional</span>
         <span className="file-row">
@@ -135,7 +210,11 @@ export function Intake() {
           {error}
         </p>
       ) : null}
-      <button className="submit" type="submit" disabled={pending || narrative.trim().length < 10}>
+      <button
+        className="submit"
+        type="submit"
+        disabled={pending || narrative.trim().length < 10 || (Boolean(province) && !departamento)}
+      >
         {pending ? "Preparando el envío…" : "Enviar aviso"}
       </button>
       <p className="fine">
