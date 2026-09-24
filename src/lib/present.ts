@@ -44,6 +44,7 @@ export function toPublic(record: CaseRecord, persistence: PersistenceInfo, now =
   return {
     id: record.id,
     province: record.province,
+    departamento: record.departamento ?? "",
     mode: record.mode,
     modeNote: record.modeNote,
     severity: heard ? record.severity : null,

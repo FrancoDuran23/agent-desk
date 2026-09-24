@@ -44,15 +44,25 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             Cuidado
           </Link>
           <nav className="topnav" aria-label="Principal">
-            <Link className="nav-quiet" href="/#como-funciona">
-              Cómo funciona
-            </Link>
-            <Link className="nav-quiet" href="/#privacidad">
-              Privacidad
-            </Link>
-            <Link className="nav-quiet" href="/alertas">
-              Alertas
-            </Link>
+            <div className="nav-links">
+              <Link className="nav-quiet" href="/#como-funciona">
+                Cómo funciona
+              </Link>
+              <Link className="nav-quiet" href="/#privacidad">
+                Privacidad
+              </Link>
+              <Link className="nav-quiet" href="/alertas">
+                Alertas
+              </Link>
+            </div>
+            <details className="nav-more">
+              <summary>Menú</summary>
+              <div>
+                <Link href="/#como-funciona">Cómo funciona</Link>
+                <Link href="/#privacidad">Privacidad</Link>
+                <Link href="/alertas">Alertas</Link>
+              </div>
+            </details>
             <Link className="nav-cta" href="/probar">
               Probar
             </Link>

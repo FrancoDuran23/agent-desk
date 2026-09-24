@@ -67,7 +67,7 @@ export function CaseRoom({ id }: { id: string }) {
   const heard = data?.steps.some((step) => step.id === "escucha" && step.status === "listo");
   const privateDone = data?.steps.some((step) => step.id === "privacidad" && step.status === "listo");
   const routed = data?.steps.some((step) => step.id === "ruta" && step.status === "listo");
-  const province = data?.province ? `Argentina · ${data.province}` : "Argentina";
+  const province = placeLine(data);
   const receipt = data?.aviso ? receiptFor(data) : null;
 
   return (
@@ -241,6 +241,14 @@ function SentMark() {
       <path d="M7 12.5 10.2 15.7 17.2 8.5" />
     </svg>
   );
+}
+
+function placeLine(data: PublicCase | null): string {
+  if (!data) return "Abriendo el caso";
+  const parts = ["Argentina"];
+  if (data.province) parts.push(data.province);
+  if (data.departamento) parts.push(data.departamento);
+  return parts.join(" · ");
 }
 
 function statusLabel(status: PublicStep["status"]): string {
