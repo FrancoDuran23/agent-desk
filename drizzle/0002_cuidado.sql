@@ -1,4 +1,3 @@
-export const SCHEMA_SQL = `
 CREATE TABLE IF NOT EXISTS cases (
   id TEXT PRIMARY KEY,
   province TEXT NOT NULL,
@@ -30,4 +29,3 @@ CREATE TABLE IF NOT EXISTS agent_steps (
 );
 
 CREATE INDEX IF NOT EXISTS idx_steps_case ON agent_steps(case_id, seq);
-`;

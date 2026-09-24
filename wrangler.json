@@ -1,7 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "main": ".open-next/worker.js",
-  "name": "casa-de-agentes",
+  "name": "cuidado",
   "compatibility_date": "2025-04-15",
   "compatibility_flags": ["nodejs_compat"],
   "assets": {
