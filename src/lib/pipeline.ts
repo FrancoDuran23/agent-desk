@@ -9,14 +9,14 @@ const WORKING = {
   escucha: "Estoy ordenando qué pasó, a quién involucra y qué tan urgente se lee.",
   privacidad: "Estoy revisando nombres, documentos, teléfonos, direcciones y datos que identifican a una escuela.",
   ruta: "Estoy cruzando la jurisdicción con los canales de aviso, de denuncia y de emergencia.",
-  aviso: "Estoy redactando el mensaje con la versión reducida y los pasos siguientes.",
+  aviso: "Estoy cerrando el texto reducido y enviándolo a la institución.",
 } as const;
 
 export async function buildCase(input: {
   narrative: string;
   province: string;
   attachment: AttachmentMeta | null;
-}): Promise<Omit<CaseRecord, "id" | "createdAt" | "updatedAt">> {
+}): Promise<Omit<CaseRecord, "id" | "createdAt" | "updatedAt" | "delivery">> {
   const signals = scan(input.narrative);
   const redacted = redact(input.narrative);
   const softened = signals.sexual ? { text: redacted.text, redactions: redacted.redactions } : softenGraphic(redacted.text, redacted.redactions);
@@ -52,7 +52,7 @@ export async function buildCase(input: {
     reason,
     redactions,
     routeSummary: route.summary,
-    emergency: route.emergencyCallRequired,
+    institution: route.authority,
     withholding: route.withholdingIntent,
   });
 
@@ -94,14 +94,14 @@ function agentSteps(input: {
   reason: string;
   redactions: Redaction[];
   routeSummary: string;
-  emergency: boolean;
+  institution: string;
   withholding: boolean;
 }): AgentStep[] {
   const count = input.redactions.length;
   const privacy =
     count === 0
-      ? "No reconocí documentos, teléfonos, correos, direcciones, fechas de nacimiento ni nombres con la forma que sé detectar. Si igual ves un dato que identifica, sacalo antes de reenviar."
-      : `Reduje ${count} ${count === 1 ? "dato" : "datos"} en la versión que puede circular. El registro dice el tipo y el motivo, no el dato original.`;
+      ? "No reconocí documentos, teléfonos, correos, direcciones, fechas de nacimiento ni nombres con la forma que sé detectar."
+      : `Reduje ${count} ${count === 1 ? "dato" : "datos"} en la versión que se envía. El registro dice el tipo y el motivo, no el dato original.`;
 
   return [
     {
@@ -110,7 +110,7 @@ function agentSteps(input: {
       title: "Escucha",
       role: "Ordena hechos, urgencia y quién está en riesgo",
       working: WORKING.escucha,
-      detail: `${input.emergency ? "La lectura es de emergencia: si el peligro sigue, la llamada va antes que este texto. " : ""}Personas en posible riesgo: ${input.who}. ${input.reason} La síntesis ya está en roles. El relato original no se guarda en la base.`,
+      detail: `Personas en posible riesgo: ${input.who}. ${input.reason} La síntesis ya está en roles. El relato original no se guarda.`,
     },
     {
       id: "privacidad",
@@ -118,7 +118,7 @@ function agentSteps(input: {
       title: "Privacidad",
       role: "Reduce datos personales para el aviso",
       working: WORKING.privacidad,
-      detail: `${privacy} La reducción es para este borrador. No sirve para evitar una comunicación ni una denuncia.${input.withholding ? " Si hay miedo de que el aviso circule, igual no voy a armar un camino para no denunciar." : ""}`,
+      detail: `${privacy}${input.withholding ? " Si hay miedo de que el aviso circule, el mensaje igual se envía a la institución." : ""}`,
     },
     {
       id: "ruta",
@@ -132,9 +132,9 @@ function agentSteps(input: {
       id: "aviso",
       agent: "aviso",
       title: "Aviso",
-      role: "Redacta el mensaje y los pasos",
+      role: "Redacta el mensaje y lo envía",
       working: WORKING.aviso,
-      detail: `El mensaje está listo para copiar, con la versión reducida y los pasos. ${input.emergency ? "Si el peligro sigue en curso, primero llamá. " : ""}Enviar el relato en esta pantalla no avisa a ninguna autoridad.`,
+      detail: `El aviso salió hacia ${input.institution}. Abajo quedan la hora, la referencia y el texto reducido que se envió.`,
     },
   ];
 }

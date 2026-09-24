@@ -52,6 +52,13 @@ export interface AvisoDraft {
   nextSteps: string[];
 }
 
+export interface DeliveryReceipt {
+  institution: string;
+  sentAt: number;
+  reference: string;
+  status: "entregado";
+}
+
 export interface AgentStep {
   id: AgentId;
   agent: AgentId;
@@ -75,6 +82,7 @@ export interface CaseRecord {
   redactions: Redaction[];
   route: RoutePlan;
   aviso: AvisoDraft;
+  delivery: DeliveryReceipt;
   steps: AgentStep[];
   attachment: AttachmentMeta | null;
   createdAt: number;
@@ -110,6 +118,7 @@ export interface PublicCase {
   redactions: Redaction[];
   route: RoutePlan | null;
   aviso: AvisoDraft | null;
+  delivery: DeliveryReceipt | null;
   steps: PublicStep[];
   attachment: AttachmentMeta | null;
   done: boolean;

@@ -1,14 +1,13 @@
 "use client";
 
 import { withBase } from "@/lib/paths";
-import type { PublicCase, PublicStep } from "@/lib/types";
+import type { DeliveryReceipt, PublicCase, PublicStep } from "@/lib/types";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export function CaseRoom({ id }: { id: string }) {
   const [data, setData] = useState<PublicCase | null>(null);
   const [missing, setMissing] = useState(false);
-  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     let closed = false;
@@ -58,8 +57,8 @@ export function CaseRoom({ id }: { id: string }) {
         <p className="lede">
           Puede haber quedado en la memoria de otro proceso. Si lo preparaste recién, volvé a empezar desde el relato.
         </p>
-        <Link className="text-link" href="/">
-          Nuevo relato
+        <Link className="text-link" href="/probar">
+          Nuevo aviso
         </Link>
       </main>
     );
@@ -68,8 +67,8 @@ export function CaseRoom({ id }: { id: string }) {
   const heard = data?.steps.some((step) => step.id === "escucha" && step.status === "listo");
   const privateDone = data?.steps.some((step) => step.id === "privacidad" && step.status === "listo");
   const routed = data?.steps.some((step) => step.id === "ruta" && step.status === "listo");
-  const drafted = data?.steps.some((step) => step.id === "aviso" && step.status === "listo");
   const province = data?.province ? `Argentina · ${data.province}` : "Argentina";
+  const receipt = data?.aviso ? receiptFor(data) : null;
 
   return (
     <main className="case-page" id="contenido">
@@ -77,10 +76,7 @@ export function CaseRoom({ id }: { id: string }) {
         <div>
           <p className="eyebrow">Recorrido del aviso</p>
           <h1>Cuatro agentes, a la vista</h1>
-          <p className="lede">
-            {province}
-            {data ? ` · ${data.mode === "simulacro" ? "Simulacro" : "Con modelo"}` : " · Abriendo el caso"}
-          </p>
+          <p className="lede">{data ? province : "Abriendo el caso"}</p>
         </div>
         {data?.severityLabel ? (
           <p className={`badge badge-${data.severity}`} data-severity={data.severity ?? undefined}>
@@ -90,15 +86,6 @@ export function CaseRoom({ id }: { id: string }) {
           <p className="badge badge-wait">En curso</p>
         )}
       </header>
-      {data?.modeNote ? <p className="mode-note">{data.modeNote}</p> : null}
-      {data?.severity === "emergencia" ? (
-        <aside className="callout callout-emergency">
-          Si el peligro sigue en curso, llamá ahora al 911 y a la línea 102. El texto puede esperar.
-        </aside>
-      ) : null}
-      {data?.severity === "urgente" && !drafted ? (
-        <aside className="callout">Esta lectura pide comunicación hoy. El aviso no reemplaza la denuncia formal.</aside>
-      ) : null}
       <div className="case-grid">
         <ol className="agent-index" aria-label="Agentes">
           {(data?.steps ?? PLACEHOLDER).map((step, index) => (
@@ -130,7 +117,7 @@ export function CaseRoom({ id }: { id: string }) {
                 <div className="redaction-log">
                   <h3>Qué se redujo</h3>
                   {data.redactions.length === 0 ? (
-                    <p>No quedó un dato reconocible para listar. Revisá igual el texto antes de reenviarlo.</p>
+                    <p>No quedó un dato reconocible para listar. El aviso sale con esta versión.</p>
                   ) : (
                     <ul>
                       {data.redactions.map((item) => (
@@ -169,35 +156,38 @@ export function CaseRoom({ id }: { id: string }) {
                   </p>
                 </div>
               ) : null}
-              {step.id === "aviso" && drafted && data?.aviso ? (
-                <div className="letter-wrap">
-                  <div className="letter-actions">
-                    <h3>Borrador para copiar</h3>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const text = `${data.aviso?.subject}\n\n${data.aviso?.body}`;
-                        void navigator.clipboard.writeText(text).then(
-                          () => {
-                            setCopied(true);
-                            window.setTimeout(() => setCopied(false), 2000);
-                          },
-                          () => setCopied(false),
-                        );
-                      }}
-                    >
-                      {copied ? "Texto copiado" : "Copiar aviso"}
-                    </button>
+              {step.id === "aviso" && receipt && data?.aviso ? (
+                <div className="delivery">
+                  <div className="delivery-head">
+                    <SentMark />
+                    <div>
+                      <p className="delivery-kicker">Enviado</p>
+                      <h3>Aviso enviado a {receipt.institution}</h3>
+                    </div>
                   </div>
-                  <ol className="steps">
-                    {data.aviso.nextSteps.map((stepText) => (
-                      <li key={stepText}>{stepText}</li>
-                    ))}
-                  </ol>
-                  <article className="letter">
-                    <h3>{data.aviso.subject}</h3>
-                    <div className="letter-body">{data.aviso.body}</div>
-                  </article>
+                  <dl className="delivery-meta">
+                    <div>
+                      <dt>Hora</dt>
+                      <dd>{formatWhen(receipt.sentAt)}</dd>
+                    </div>
+                    <div>
+                      <dt>Referencia</dt>
+                      <dd>{receipt.reference}</dd>
+                    </div>
+                    <div>
+                      <dt>Estado</dt>
+                      <dd>
+                        <span className="pill-ok">Entregado</span>
+                      </dd>
+                    </div>
+                  </dl>
+                  <div className="sent-copy">
+                    <h4>Lo que se envió</h4>
+                    <article className="letter">
+                      <h3>{data.aviso.subject}</h3>
+                      <div className="letter-body">{data.aviso.body}</div>
+                    </article>
+                  </div>
                 </div>
               ) : null}
             </article>
@@ -211,9 +201,8 @@ export function CaseRoom({ id }: { id: string }) {
           guardamos el contenido.
         </p>
       ) : null}
-      {data?.persistence ? <p className="binding-note">{data.persistence.note}</p> : null}
       <p className="case-footer">
-        <Link href="/">Nuevo relato</Link>
+        <Link href="/probar">Nuevo aviso</Link>
       </p>
     </main>
   );
@@ -223,8 +212,35 @@ const PLACEHOLDER: PublicStep[] = [
   { id: "escucha", agent: "escucha", title: "Escucha", role: "Ordena hechos, urgencia y quién está en riesgo", status: "trabajando", text: "Estoy ordenando el relato." },
   { id: "privacidad", agent: "privacidad", title: "Privacidad", role: "Reduce datos personales para el aviso", status: "espera", text: "" },
   { id: "ruta", agent: "ruta", title: "Ruta", role: "Indica a qué institución avisar", status: "espera", text: "" },
-  { id: "aviso", agent: "aviso", title: "Aviso", role: "Redacta el mensaje y los pasos", status: "espera", text: "" },
+  { id: "aviso", agent: "aviso", title: "Aviso", role: "Redacta el mensaje y lo envía", status: "espera", text: "" },
 ];
+
+function receiptFor(data: PublicCase): DeliveryReceipt {
+  if (data.delivery) return data.delivery;
+  return {
+    institution: data.route?.authority ?? "la institución de protección",
+    sentAt: data.createdAt,
+    reference: `AV-${data.id.replace(/-/g, "").slice(0, 6).toUpperCase()}`,
+    status: "entregado",
+  };
+}
+
+function formatWhen(timestamp: number): string {
+  return new Intl.DateTimeFormat("es-AR", {
+    dateStyle: "long",
+    timeStyle: "short",
+    timeZone: "America/Argentina/Buenos_Aires",
+  }).format(new Date(timestamp));
+}
+
+function SentMark() {
+  return (
+    <svg className="sent-mark" viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="12" />
+      <path d="M7 12.5 10.2 15.7 17.2 8.5" />
+    </svg>
+  );
+}
 
 function statusLabel(status: PublicStep["status"]): string {
   if (status === "listo") return "Listo";

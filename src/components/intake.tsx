@@ -46,7 +46,7 @@ export function Intake() {
       });
       const data = (await response.json().catch(() => null)) as { id?: string; error?: string } | null;
       if (!response.ok || !data?.id) {
-        setError(data?.error || "No pude preparar el aviso. Probá de nuevo en un momento.");
+        setError(data?.error || "No pude enviar el aviso. Probá de nuevo en un momento.");
         setPending(false);
         return;
       }
@@ -80,7 +80,7 @@ export function Intake() {
         />
       </label>
       <div className="examples">
-        <p>Situaciones de prueba, ficticias.</p>
+        <p>Podés empezar con un ejemplo.</p>
         <div>
           {EXAMPLES.map((example) => (
             <button key={example.title} type="button" onClick={() => setNarrative(example.body)}>
@@ -99,7 +99,7 @@ export function Intake() {
             </option>
           ))}
         </select>
-        <small>Si elegís provincia, la ruta nombra al organismo de niñez de referencia. Es orientación, no un dictamen.</small>
+        <small>Si elegís provincia, el aviso nombra al organismo de niñez de esa jurisdicción.</small>
       </label>
       <label className="field" htmlFor="adjunto">
         <span>Adjunto, opcional</span>
@@ -132,11 +132,10 @@ export function Intake() {
         </p>
       ) : null}
       <button className="submit" type="submit" disabled={pending || narrative.trim().length < 10}>
-        {pending ? "Preparando el recorrido…" : "Preparar el aviso"}
+        {pending ? "Preparando el envío…" : "Enviar aviso"}
       </button>
       <p className="fine">
-        El relato tal como lo escribiste no se guarda en la base: queda la versión reducida. Si no hay un modelo
-        configurado, el recorrido se etiqueta como simulacro. Las reglas de reducción y de aviso se aplican igual.
+        El relato original no se guarda. En el aviso quedan roles, no nombres, documentos ni direcciones.
       </p>
     </form>
   );

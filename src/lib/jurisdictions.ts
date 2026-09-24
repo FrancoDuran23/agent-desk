@@ -38,7 +38,7 @@ const SPECIFIC: Record<string, Pick<Jurisdiction, "authority" | "note">> = {
   },
   "Ciudad Autónoma de Buenos Aires": {
     authority: "Consejo de los Derechos de Niñas, Niños y Adolescentes de la Ciudad",
-    note: "Confirmá el circuito vigente. Un protocolo escolar no reemplaza al organismo de protección ni a la denuncia.",
+    note: "Confirmá el circuito vigente del organismo de protección de derechos de la Ciudad.",
   },
   "Buenos Aires": {
     authority: "Servicio Local de Promoción y Protección de Derechos del municipio",

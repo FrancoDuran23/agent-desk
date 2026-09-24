@@ -23,19 +23,17 @@ export function draftAviso(input: {
   }).format(new Date());
 
   const paragraphs = [
+    `Para: ${input.route.authority}`,
     `Lugar de referencia: ${input.provinceLabel}`,
     `Fecha: ${date}`,
-    "A la autoridad de la institución y a quien corresponda en el organismo de protección de derechos:",
     "Por este medio se comunica una situación observada por personal de una institución o por una persona adulta a cargo. Podría afectar derechos de una niña, un niño o un adolescente.",
     `Síntesis, con datos identificatorios reducidos:\n${input.narrative}`,
     `A quién involucra, en términos de rol: ${input.whoAtRisk}.`,
-    `Lectura de urgencia de esta herramienta: ${input.severityLabel}. ${input.severityReason} Esta lectura no es un diagnóstico ni un dictamen jurídico.`,
-    `Canal sugerido: ${input.route.summary}`,
+    `Lectura de urgencia: ${input.severityLabel}. ${input.severityReason}`,
+    `Canal: ${input.route.summary}`,
     input.route.dutyNote,
-    "La reducción de nombres, documentos y otros datos limita la circulación de este borrador. No autoriza a omitir la comunicación a la autoridad ni la denuncia cuando corresponde.",
-    "Pasos recomendados:",
+    "Pasos que acompañan este aviso:",
     input.nextSteps.map((step, index) => `${index + 1}. ${step}`).join("\n"),
-    "Este borrador no fue enviado a ninguna autoridad. Quien lo presenta es la persona que vio la situación, por el canal formal. Cuidado no reemplaza al 911, a la línea 102 ni a la denuncia.",
   ];
 
   return { subject: SUBJECT[input.severity], body: paragraphs.join("\n\n") };
