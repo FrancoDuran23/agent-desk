@@ -43,6 +43,29 @@ describe("redact", () => {
     assert.match(text, /^la vecina me dijo que el nene llora\.$/i);
   });
 
+  it("drops a naming clause instead of rewriting it", () => {
+    const aside = redact("El hijo del vecino, se llama Rodrigo Quintanilla Fernández,");
+    assert.equal(/rodrigo|quintanilla|fernández|se identifica|una persona/i.test(aside.text), false);
+    assert.equal(aside.text, "El hijo del vecino");
+    assert.ok(aside.redactions.some((item) => item.kind === "nombre" && item.replacement === "[nombre omitido]"));
+
+    const continued = redact("El hijo del vecino, se llama Rodrigo Quintanilla Fernández, falta a clase.");
+    assert.equal(continued.text, "El hijo del vecino falta a clase.");
+
+    const called = redact("Un nene llamado Rodrigo llegó llorando.");
+    assert.equal(called.text, "Un nene llegó llorando.");
+
+    const byName = redact("Vi al hijo de nombre Rodrigo Quintanilla Fernández.");
+    assert.equal(byName.text, "Vi al hijo.");
+
+    const whose = redact("El hijo del vecino, su nombre es Rodrigo Quintanilla Fernández,");
+    assert.equal(whose.text, "El hijo del vecino");
+
+    const bare = redact("Se llama Rodrigo Quintanilla Fernández y falta a clase.");
+    assert.equal(/rodrigo|quintanilla|fernández/i.test(bare.text), false);
+    assert.match(bare.text, /\[nombre omitido\]/);
+  });
+
   it("labels the adult in the household and the child by the nearest role", () => {
     const adult = redact("La madre Marta Gómez le pega al nene.");
     assert.equal(/marta|gómez/i.test(adult.text), false);
