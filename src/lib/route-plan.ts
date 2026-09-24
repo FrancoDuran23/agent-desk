@@ -3,7 +3,7 @@ import { describeJurisdiction } from "./jurisdictions";
 import type { Channel, RoutePlan } from "./types";
 
 const DUTY =
-  "El artículo 30 de la Ley 26.061 prevé que el personal de establecimientos educativos y de salud, públicos o privados, y los funcionarios públicos que conozcan una vulneración de derechos de niñas, niños o adolescentes la comuniquen a la autoridad local de protección. El decreto reglamentario incluye también los derechos amenazados. Esta nota no es asesoramiento jurídico.";
+  "El artículo 30 de la Ley 26.061 prevé que el personal de establecimientos educativos y de salud, públicos o privados, y los funcionarios públicos que conozcan una vulneración de derechos de niñas, niños o adolescentes la comuniquen a la autoridad local de protección. El decreto reglamentario incluye también los derechos amenazados.";
 
 export function buildRoute(signals: Signals, province: string, mentionsAdultWoman: boolean): RoutePlan {
   const place = describeJurisdiction(province);
@@ -42,7 +42,7 @@ export function buildRoute(signals: Signals, province: string, mentionsAdultWoma
       name: "Equipo directivo u orientación de la escuela",
       when: "Hoy",
       detail:
-        "Si esa conducción no está involucrada. Un protocolo interno no reemplaza al organismo de niñez ni a la denuncia.",
+        "Si esa conducción no está involucrada. El organismo de niñez también recibe el aviso.",
     });
   }
 
@@ -50,7 +50,7 @@ export function buildRoute(signals: Signals, province: string, mentionsAdultWoma
     channels.push({
       name: "Línea 102",
       when: "Para orientarte",
-      detail: "Pueden indicar el circuito de tu provincia. No reemplaza a la denuncia cuando corresponde.",
+      detail: "Pueden indicar el circuito de tu provincia.",
     });
   }
 
@@ -58,7 +58,7 @@ export function buildRoute(signals: Signals, province: string, mentionsAdultWoma
     channels.push({
       name: "Policía o Ministerio Público Fiscal",
       when: "Denuncia",
-      detail: "La denuncia formal se hace por este canal. Cuidado no la envía ni la reemplaza.",
+      detail: "La denuncia formal se hace por este canal.",
     });
   } else {
     channels.push({
@@ -74,14 +74,14 @@ export function buildRoute(signals: Signals, province: string, mentionsAdultWoma
       name: "Línea 144",
       when: "Además",
       detail:
-        "Si también hay violencia hacia una mujer adulta, la línea 144 orienta. No reemplaza a la 102 cuando hay una niña, niño o adolescente.",
+        "Si también hay violencia hacia una mujer adulta, la línea 144 orienta.",
     });
   }
 
   const summary = [
     emergency ? "Hay que tratar esto como una emergencia: 911 y línea 102 antes que el texto." : "",
     formal
-      ? "Puede corresponder una denuncia formal ante la policía o el Ministerio Público Fiscal. Este aviso no la presenta."
+      ? "Puede corresponder una denuncia formal ante la policía o el Ministerio Público Fiscal."
       : "No descarto la denuncia. Si hay duda, la consulta con la línea 102 o el organismo de niñez es el paso siguiente.",
     signals.bypassSchoolLeadership
       ? "La situación podría involucrar a un adulto de la institución: no dejes el aviso solo en la conducción de la escuela."
@@ -111,15 +111,13 @@ export function buildRoute(signals: Signals, province: string, mentionsAdultWoma
 
 export function nextStepsFor(route: RoutePlan): string[] {
   const steps = [
-    route.emergencyCallRequired
-      ? "Si el peligro sigue en curso, llamá ahora al 911 y a la línea 102. El texto puede esperar."
-      : "Si en cualquier momento el peligro pasa a ser actual, dejá el texto y llamá al 911 y a la línea 102.",
+    ...(route.emergencyCallRequired ? ["Si el peligro sigue en curso, el primer canal es el 911 y la línea 102."] : []),
     `Comunicá hoy a ${route.authority}.`,
     route.bypassSchoolLeadership
       ? "No dejes el aviso solo en la conducción de la escuela si esa persona pudiera estar involucrada."
       : "Avisá al equipo directivo u orientación, si no está involucrado en lo que viste.",
     route.formalComplaintRequired
-      ? "Hacé la denuncia en la policía o en el Ministerio Público Fiscal. Este borrador no la reemplaza."
+      ? "Hacé la denuncia en la policía o en el Ministerio Público Fiscal."
       : "Si dudás si corresponde denunciar, consultá a la línea 102 o al organismo de niñez antes de archivar el tema.",
     "No reenvíes el relato original por grupos de chat. Si hace falta un dato, aportalo en el canal formal.",
   ];

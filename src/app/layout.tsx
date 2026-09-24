@@ -1,4 +1,3 @@
-import { SafetyBanner } from "@/components/safety-banner";
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -10,11 +9,10 @@ export const metadata: Metadata = {
     template: "%s · Cuidado",
   },
   description:
-    "Aviso institucional para equipos escolares y cuidadores cuando una situación involucra a una niña, un niño o un adolescente. No reemplaza a la línea 102, al 911 ni a la denuncia.",
+    "Para maestros, directivos y cuidadores. Cuidado escucha lo que viste, reduce los datos personales y envía un aviso a la institución que corresponde.",
   openGraph: {
     title: "Cuidado",
-    description:
-      "Para ordenar un aviso preliminar, reducir datos personales y ver qué canal corresponde. No reemplaza la llamada ni la denuncia.",
+    description: "Escucha el relato, quita lo que identifica y envía un aviso a la institución que corresponde.",
     type: "website",
     locale: "es_AR",
   },
@@ -41,14 +39,26 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <a className="skip" href="#contenido">
           Ir al contenido
         </a>
-        <SafetyBanner />
         <header className="topbar">
           <Link className="wordmark" href="/">
             Cuidado
           </Link>
-          <p>Para maestros, directivos y cuidadores</p>
+          <nav className="topnav" aria-label="Principal">
+            <Link className="nav-quiet" href="/#como-funciona">
+              Cómo funciona
+            </Link>
+            <Link className="nav-quiet" href="/#privacidad">
+              Privacidad
+            </Link>
+            <Link className="nav-cta" href="/probar">
+              Probar
+            </Link>
+          </nav>
         </header>
         {children}
+        <footer className="site-footer">
+          <p>Emergencias: 911 · Línea 102</p>
+        </footer>
       </body>
     </html>
   );

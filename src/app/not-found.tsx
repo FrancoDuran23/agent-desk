@@ -5,9 +5,9 @@ export default function NotFound() {
     <main className="case-page" id="contenido">
       <p className="eyebrow">404</p>
       <h1>Esa página no está</h1>
-      <p className="lede">El aviso se prepara desde el inicio.</p>
+      <p className="lede">El aviso se empieza desde el inicio.</p>
       <Link className="text-link" href="/">
-        Volver al relato
+        Volver al inicio
       </Link>
     </main>
   );

@@ -1,3 +1,4 @@
+import { buildDelivery } from "@/lib/delivery";
 import { isProvince } from "@/lib/jurisdictions";
 import { buildCase } from "@/lib/pipeline";
 import { saveCase } from "@/lib/store";
@@ -27,11 +28,17 @@ export async function POST(request: Request) {
     attachment: cleanAttachment(body?.attachment),
   });
   const now = Date.now();
+  const id = crypto.randomUUID();
   const record: CaseRecord = {
     ...built,
-    id: crypto.randomUUID(),
+    id,
     createdAt: now,
     updatedAt: now,
+    delivery: buildDelivery({
+      id,
+      createdAt: now,
+      institution: built.route.authority,
+    }),
   };
   await saveCase(record);
   return NextResponse.json({ id: record.id, mode: record.mode, modeNote: record.modeNote });

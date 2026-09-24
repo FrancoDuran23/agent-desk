@@ -2,6 +2,11 @@ import type { CaseRecord, PersistenceInfo, PublicCase, PublicStep } from "./type
 
 export const STEP_MS = 2300;
 
+export function avisoReadyOffset(count = 4): number {
+  const index = Math.max(0, count - 1);
+  return index * STEP_MS + Math.round(STEP_MS * 0.72);
+}
+
 export function phase(createdAt: number, count: number, now = Date.now()) {
   const elapsed = Math.max(0, now - createdAt);
   let revealed = 0;
@@ -49,6 +54,7 @@ export function toPublic(record: CaseRecord, persistence: PersistenceInfo, now =
     redactions: privateDone ? record.redactions : [],
     route: routed ? record.route : null,
     aviso: drafted ? record.aviso : null,
+    delivery: drafted ? record.delivery ?? null : null,
     steps,
     attachment: record.attachment,
     done,

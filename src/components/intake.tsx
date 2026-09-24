@@ -46,7 +46,7 @@ export function Intake() {
       });
       const data = (await response.json().catch(() => null)) as { id?: string; error?: string } | null;
       if (!response.ok || !data?.id) {
-        setError(data?.error || "No pude preparar el aviso. Probá de nuevo en un momento.");
+        setError(data?.error || "No pude enviar el aviso. Probá de nuevo en un momento.");
         setPending(false);
         return;
       }
@@ -80,7 +80,7 @@ export function Intake() {
         />
       </label>
       <div className="examples">
-        <p>Situaciones de prueba, ficticias.</p>
+        <p>Podés empezar con un ejemplo.</p>
         <div>
           {EXAMPLES.map((example) => (
             <button key={example.title} type="button" onClick={() => setNarrative(example.body)}>
@@ -99,27 +99,31 @@ export function Intake() {
             </option>
           ))}
         </select>
-        <small>Si elegís provincia, la ruta nombra al organismo de niñez de referencia. Es orientación, no un dictamen.</small>
+        <small>Si elegís provincia, el aviso nombra al organismo de niñez de esa jurisdicción.</small>
       </label>
       <label className="field" htmlFor="adjunto">
         <span>Adjunto, opcional</span>
-        <input
-          id="adjunto"
-          type="file"
-          onChange={(event) => {
-            const file = event.target.files?.[0];
-            if (!file) {
-              setAttachment(null);
-              return;
-            }
-            const extension = file.name.includes(".") ? (file.name.split(".").pop() ?? "") : "";
-            setAttachment({
-              bytes: file.size,
-              contentType: file.type || "application/octet-stream",
-              extension: extension.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 8),
-            });
-          }}
-        />
+        <span className="file-row">
+          <input
+            id="adjunto"
+            className="file-input"
+            type="file"
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              if (!file) {
+                setAttachment(null);
+                return;
+              }
+              const extension = file.name.includes(".") ? (file.name.split(".").pop() ?? "") : "";
+              setAttachment({
+                bytes: file.size,
+                contentType: file.type || "application/octet-stream",
+                extension: extension.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 8),
+              });
+            }}
+          />
+          <span className="file-face">{attachment ? "Archivo elegido" : "Elegir archivo"}</span>
+        </span>
         <small>
           {attachment
             ? `Se registrará un adjunto ${attachment.extension ? `.${attachment.extension}` : ""} de ${formatBytes(attachment.bytes)}. El contenido no sale de este navegador.`
@@ -132,11 +136,10 @@ export function Intake() {
         </p>
       ) : null}
       <button className="submit" type="submit" disabled={pending || narrative.trim().length < 10}>
-        {pending ? "Preparando el recorrido…" : "Preparar el aviso"}
+        {pending ? "Preparando el envío…" : "Enviar aviso"}
       </button>
       <p className="fine">
-        El relato tal como lo escribiste no se guarda en la base: queda la versión reducida. Si no hay un modelo
-        configurado, el recorrido se etiqueta como simulacro. Las reglas de reducción y de aviso se aplican igual.
+        El relato original no se guarda. En el aviso quedan roles, no nombres, documentos ni direcciones.
       </p>
     </form>
   );

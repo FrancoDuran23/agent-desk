@@ -36,7 +36,7 @@ const REASONS: Record<RedactionKind, { label: string; reason: string }> = {
   dni: {
     label: "Documento o identificador",
     reason:
-      "Un documento o legajo identifica de manera directa. No va en este borrador. Si la autoridad lo pide, se aporta por el canal formal.",
+      "Un documento o legajo identifica de manera directa. No va en el aviso. Si la autoridad lo pide, se aporta por el canal formal.",
   },
   telefono: {
     label: "Teléfono",
@@ -48,7 +48,7 @@ const REASONS: Record<RedactionKind, { label: string; reason: string }> = {
   },
   direccion: {
     label: "Dirección",
-    reason: "Una dirección puede ubicar a una niña o un niño. Se omite en el borrador que circula.",
+    reason: "Una dirección puede ubicar a una niña o un niño. Se omite en el aviso que se envía.",
   },
   escuela: {
     label: "Escuela",
@@ -57,7 +57,7 @@ const REASONS: Record<RedactionKind, { label: string; reason: string }> = {
   },
   fecha: {
     label: "Fecha de nacimiento",
-    reason: "Una fecha precisa identifica más de lo que este borrador necesita.",
+    reason: "Una fecha precisa identifica más de lo que este aviso necesita.",
   },
   detalle: {
     label: "Detalle que no se reproduce",
