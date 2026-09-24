@@ -9,10 +9,10 @@ export const metadata: Metadata = {
     template: "%s · Cuidado",
   },
   description:
-    "Para maestros, directivos y cuidadores. Cuidado escucha lo que viste, reduce los datos personales y envía un aviso a la institución que corresponde.",
+    "Para maestros, directivos y cuidadores. Cuidado envía el aviso al servicio local del departamento y muestra las alertas, sin el relato.",
   openGraph: {
     title: "Cuidado",
-    description: "Escucha el relato, quita lo que identifica y envía un aviso a la institución que corresponde.",
+    description: "El aviso llega al servicio local del departamento. El mapa muestra cantidades y urgencia, sin el relato.",
     type: "website",
     locale: "es_AR",
   },
@@ -49,6 +49,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             </Link>
             <Link className="nav-quiet" href="/#privacidad">
               Privacidad
+            </Link>
+            <Link className="nav-quiet" href="/alertas">
+              Alertas
             </Link>
             <Link className="nav-cta" href="/probar">
               Probar

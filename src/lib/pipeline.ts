@@ -15,6 +15,8 @@ const WORKING = {
 export async function buildCase(input: {
   narrative: string;
   province: string;
+  departamento: string;
+  departamentoId: string;
   attachment: AttachmentMeta | null;
 }): Promise<Omit<CaseRecord, "id" | "createdAt" | "updatedAt" | "delivery">> {
   const signals = scan(input.narrative);
@@ -24,7 +26,7 @@ export async function buildCase(input: {
   const localNarrative = signals.sexual ? OMITTED_NARRATIVE : softened.text || "No quedó una síntesis utilizable.";
   const who = whoAtRisk(signals.childHint);
   const mentionsAdultWoman = womanAlsoAtRisk(input.narrative);
-  const route = buildRoute(signals, input.province, mentionsAdultWoman);
+  const route = buildRoute(signals, input.province, mentionsAdultWoman, input.departamento);
   const localSteps = nextStepsFor(route);
   const assisted = await assistDraft({
     narrative: localNarrative,
@@ -58,6 +60,8 @@ export async function buildCase(input: {
 
   return {
     province: input.province,
+    departamento: input.departamento,
+    departamentoId: input.departamentoId,
     mode: assisted.mode,
     modeNote: assisted.modeNote,
     status: "listo",

@@ -1,4 +1,5 @@
 import { buildDelivery } from "@/lib/delivery";
+import { validarLugar } from "@/lib/geo";
 import { normalizeProvince } from "@/lib/jurisdictions";
 import { buildCase } from "@/lib/pipeline";
 import { saveCase } from "@/lib/store";
@@ -11,6 +12,7 @@ export async function POST(request: Request) {
   const body = (await request.json().catch(() => null)) as {
     narrative?: unknown;
     province?: unknown;
+    departamento?: unknown;
     attachment?: unknown;
   } | null;
   const narrative = cleanNarrative(body?.narrative);
@@ -22,9 +24,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error }, { status: 400 });
   }
   const province = typeof body?.province === "string" ? normalizeProvince(body.province) : "";
+  const departamentoNombre = typeof body?.departamento === "string" ? body.departamento.trim() : "";
+  const lugar = departamentoNombre ? validarLugar(province, departamentoNombre) : null;
+  if (departamentoNombre && !lugar) {
+    return NextResponse.json({ error: "Elegí un departamento de esa provincia." }, { status: 400 });
+  }
   const built = await buildCase({
     narrative: narrative.text,
     province,
+    departamento: lugar?.departamento ?? "",
+    departamentoId: lugar?.id ?? "",
     attachment: cleanAttachment(body?.attachment),
   });
   const now = Date.now();

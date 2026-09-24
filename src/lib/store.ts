@@ -1,7 +1,8 @@
+import type { CasoAgregable } from "./alerts";
 import { resolveBindings } from "./bindings";
 import { toPublic } from "./present";
 import { SCHEMA_SQL } from "./schema";
-import type { CaseRecord, PersistenceInfo, PublicCase } from "./types";
+import type { CaseRecord, PersistenceInfo, PublicCase, Severity } from "./types";
 
 async function applySchema(db: D1Database): Promise<void> {
   const statements = SCHEMA_SQL.split(";")
@@ -115,6 +116,46 @@ export async function saveCase(record: CaseRecord): Promise<void> {
       { httpMetadata: { contentType: "application/json" } },
     );
   }
+}
+
+const SEVERITIES = new Set<Severity>(["acompanamiento", "preocupacion", "urgente", "emergencia"]);
+
+function casoAgregable(record: CaseRecord): CasoAgregable | null {
+  if (!record.departamento || !record.departamentoId || !record.province) return null;
+  if (!SEVERITIES.has(record.severity)) return null;
+  return {
+    provincia: record.province,
+    departamento: record.departamento,
+    departamentoId: record.departamentoId,
+    severity: record.severity,
+    createdAt: record.createdAt,
+  };
+}
+
+export async function listCasosAgregables(): Promise<CasoAgregable[]> {
+  const byId = new Map<string, CasoAgregable>();
+  for (const record of memory().values()) {
+    const item = casoAgregable(record);
+    if (item) byId.set(record.id, item);
+  }
+  const db = await database();
+  if (db) {
+    try {
+      const rows = await db.prepare("SELECT id, snapshot_json FROM cases").all<{ id: string; snapshot_json: string }>();
+      for (const row of rows.results ?? []) {
+        if (byId.has(row.id)) continue;
+        try {
+          const item = casoAgregable(JSON.parse(row.snapshot_json) as CaseRecord);
+          if (item) byId.set(row.id, item);
+        } catch {
+          // A broken snapshot does not enter the aggregate.
+        }
+      }
+    } catch {
+      // Memory still covers the cases created in this process.
+    }
+  }
+  return [...byId.values()];
 }
 
 export async function loadCase(id: string): Promise<CaseRecord | null> {

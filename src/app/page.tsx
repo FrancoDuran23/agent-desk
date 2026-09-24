@@ -1,10 +1,11 @@
+import { MapSketch } from "@/components/map-sketch";
 import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Cuidado",
   description:
-    "Para maestros, directivos y cuidadores. Cuidado escucha lo que viste, reduce los datos personales y envía un aviso a la institución que corresponde.",
+    "Para maestros, directivos y cuidadores. El aviso llega al servicio local del departamento. El mapa muestra cuántos hay, y qué tan urgentes, sin el relato.",
 };
 
 const AGENTS = [
@@ -21,7 +22,7 @@ const AGENTS = [
   {
     n: "03",
     title: "Ruta",
-    text: "Elige la institución según la provincia y lo que se observó: la escuela, el organismo de niñez o el canal que corresponda.",
+    text: "Elige el servicio local del departamento: por ejemplo, Servicio Local de Protección de Derechos.",
   },
   {
     n: "04",
@@ -38,8 +39,8 @@ export default function HomePage() {
           <p className="eyebrow">Para maestros, directivos y cuidadores</p>
           <h1>Un aviso a la institución, cuando viste algo que involucra a una niña, un niño o un adolescente.</h1>
           <p className="hero-lede">
-            Cuidado escucha el relato, quita lo que identifica y envía el mensaje al organismo que corresponde. Al
-            final ves qué salió, a qué hora y con qué referencia.
+            Cuidado escucha el relato, quita lo que identifica y envía el mensaje al servicio local del departamento.
+            El mapa del país muestra cuántos avisos hay, y qué tan urgentes, sin el texto del caso.
           </p>
           <div className="hero-actions">
             <Link className="btn btn-primary" href="/probar">
@@ -82,7 +83,7 @@ export default function HomePage() {
           </ol>
           <div className="folio-card">
             <p className="folio-kicker">Enviado</p>
-            <p className="folio-title">Aviso enviado al organismo de niñez</p>
+            <p className="folio-title">Aviso enviado al Servicio Local de Protección de Derechos – Rosario</p>
             <dl>
               <div>
                 <dt>Estado</dt>
@@ -112,6 +113,29 @@ export default function HomePage() {
             </li>
           ))}
         </ol>
+      </section>
+
+      <section className="band" id="alertas-pais" aria-labelledby="alertas-titulo">
+        <div className="alert-landing">
+          <div className="section-intro">
+            <p className="eyebrow">Alertas por departamento</p>
+            <h2 id="alertas-titulo">El aviso cierra en el departamento. El mapa muestra el conjunto.</h2>
+            <p>
+              Después de la provincia se elige el departamento, o se usa la ubicación del navegador para resolverlo.
+              Guardamos esa jurisdicción, no el punto exacto. En el mapa cada departamento se colorea por cantidad y
+              urgencia.
+            </p>
+            <ul className="preview-points">
+              <li>El aviso nombra al servicio local de ese departamento.</li>
+              <li>El mapa no muestra relatos, nombres ni direcciones.</li>
+              <li>Los avisos reales se suman a los datos de demostración.</li>
+            </ul>
+            <Link className="btn btn-primary" href="/alertas">
+              Ver alertas
+            </Link>
+          </div>
+          <MapSketch />
+        </div>
       </section>
 
       <section className="band-preview" aria-labelledby="vista-titulo">

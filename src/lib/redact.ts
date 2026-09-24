@@ -106,8 +106,19 @@ function roleFromSide(fragment: string, direction: "before" | "after"): string |
   return null;
 }
 
+const KINSHIP_OBJECT =
+  /(\b(?:padrastro|madrastra|madre|padre|mamá|mama|papá|papa|tío|tio|tía|tia|abuelo|abuela|tutor|tutora)\s+)(de|del)\s*$/i;
+
+function roleForKinshipObject(before: string): string | null {
+  const tail = (before.split(/[.!?\n]/).pop() ?? before).slice(-160).trimEnd();
+  const match = KINSHIP_OBJECT.exec(tail);
+  if (!match) return null;
+  if (match[2].toLocaleLowerCase("es-AR") === "del") return "[nombre omitido]";
+  return "la niña";
+}
+
 function roleForName(before: string, after: string): string {
-  return roleFromSide(before, "before") ?? roleFromSide(after, "after") ?? "una persona";
+  return roleForKinshipObject(before) ?? roleFromSide(before, "before") ?? roleFromSide(after, "after") ?? "una persona";
 }
 
 function triggerMatchesLabel(trigger: string, label: string): boolean {
