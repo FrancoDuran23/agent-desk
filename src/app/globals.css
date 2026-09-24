@@ -1,0 +1,103 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: light;
+  --wall: #fff3e4;
+  --ink: #1c140f;
+  --mango: #ffb703;
+  --pink: #ff3d8a;
+  --teal: #0f9f6e;
+  --coral: #ff4d2e;
+  --blue: #2f6fed;
+}
+
+* { box-sizing: border-box; }
+
+html, body { min-height: 100%; }
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at 8% 10%, #ffd6e8 0 18%, transparent 19%),
+    radial-gradient(circle at 92% 0%, #ffe08a 0 16%, transparent 17%),
+    radial-gradient(circle at 80% 90%, #b8f3e4 0 14%, transparent 15%),
+    var(--wall);
+  color: var(--ink);
+  font-family: "Outfit", "Avenir Next", "Segoe UI", sans-serif;
+}
+
+button, input, textarea { font: inherit; }
+
+button { cursor: pointer; }
+
+.display { font-family: "Lilita One", "Trebuchet MS", system-ui; letter-spacing: 0.01em; }
+.drama { font-family: "Fraunces", Georgia, serif; }
+
+.hard {
+  border: 3px solid var(--ink);
+  box-shadow: 5px 5px 0 var(--ink);
+}
+
+.hard-sm {
+  border: 2px solid var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+.tape {
+  background: repeating-linear-gradient(-45deg, #ffe14a, #ffe14a 8px, #fff3a8 8px, #fff3a8 16px);
+}
+
+.pop { animation: pop 0.35s cubic-bezier(0.2, 1.4, 0.4, 1) both; }
+
+@keyframes pop {
+  from { transform: translateY(8px) rotate(-1deg); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+
+.wiggle { animation: wiggle 0.45s ease-in-out; }
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0); }
+  30% { transform: rotate(-1.5deg); }
+  70% { transform: rotate(1.5deg); }
+}
+
+.rec {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 999px;
+  background: #ff2d2d;
+  box-shadow: 0 0 0 0 rgb(255 45 45 / 0.6);
+  animation: rec 1.2s infinite;
+}
+
+@keyframes rec {
+  70% { box-shadow: 0 0 0 8px transparent; }
+}
+
+.designer-shell {
+  background: #ececec;
+  color: #1a1a1a;
+  font-family: "Outfit", "Segoe UI", sans-serif;
+}
+
+.nav-dark {
+  background: #2b2b2b;
+  color: #f3f3f3;
+}
+
+.nav-dark button { color: inherit; }
+
+.wf-selected {
+  background: #0b6bcb;
+  color: white;
+}
+
+.scroll-thin { scrollbar-width: thin; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
