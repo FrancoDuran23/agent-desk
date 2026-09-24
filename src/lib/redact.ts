@@ -31,7 +31,7 @@ const REASONS: Record<RedactionKind, { label: string; reason: string }> = {
   nombre: {
     label: "Nombre",
     reason:
-      "En el aviso preliminar el nombre no circula, ni siquiera en iniciales. Queda el rol: el niño, la vecina, un adulto del hogar o quien reporta.",
+      "En el aviso preliminar el nombre no circula, ni siquiera en iniciales. Si iba en «se llama», «de nombre» o «llamado», se omite esa frase. Si iba junto al rol, queda el rol.",
   },
   dni: {
     label: "Documento o identificador",
@@ -241,7 +241,7 @@ function redactTriggeredNames(
   push: (kind: RedactionKind, replacement: string) => string,
 ): string {
   const triggers =
-    /\b(?:me llamo|se llama|se llaman|llamad[oa]|de nombre|cuyo nombre es|nombre es|soy)\b|\b(?:alumnos|alumnas|alumno|alumna|estudiantes|estudiante|nenes|nenas|nene|nena|niños|niñas|niño|niña|menores|menor|hijos|hijas|hijo|hija|vecina|vecino|madre|padre|mamá|mama|papá|papa|madrastr[ao]|padrastr[ao]|tía|tia|tío|tio|abuela|abuelo)\b/gi;
+    /\b(?:me llamo|se llama|se llaman|llamad[oa]|de nombre|cuyo nombre es|(?:su|sus|el|la|un|una)\s+nombre es|nombre es|soy)\b|\b(?:alumnos|alumnas|alumno|alumna|estudiantes|estudiante|nenes|nenas|nene|nena|niños|niñas|niño|niña|menores|menor|hijos|hijas|hijo|hija|vecina|vecino|madre|padre|mamá|mama|papá|papa|madrastr[ao]|padrastr[ao]|tía|tia|tío|tio|abuela|abuelo)\b/gi;
   let out = "";
   let cursor = 0;
   while (cursor < text.length) {
@@ -265,19 +265,45 @@ function redactTriggeredNames(
     out += text.slice(cursor, match.index);
     if (/^me llamo$/i.test(trigger)) {
       out += `me identifico como ${push("nombre", "quien reporta")}`;
+      cursor = end;
     } else if (/^soy$/i.test(trigger)) {
       out += `soy ${push("nombre", "quien reporta")}`;
+      cursor = end;
     } else if (callsName) {
-      out += `se identifica como ${push("nombre", label)}`;
+      const token = push("nombre", "[nombre omitido]");
+      const omitted = omitNamingClause(out, text.slice(end));
+      if (omitted) {
+        out = omitted.text;
+        cursor = end + omitted.skipAfter;
+      } else {
+        out += token;
+        cursor = end;
+      }
     } else if (triggerMatchesLabel(trigger, label)) {
       out = out.replace(/(?:\b(?:su|sus|mi|mis|la|el|los|las|una|un)\s+)?$/i, "");
       out += push("nombre", label);
+      cursor = end;
     } else {
       out += `${trigger} ${push("nombre", label)}`;
+      cursor = end;
     }
-    cursor = end;
   }
   return out;
+}
+
+function omitNamingClause(before: string, after: string): { text: string; skipAfter: number } | null {
+  const head = before.replace(/[ \t]+$/g, "").replace(/,[ \t]*$/g, "").replace(/[ \t]+$/g, "");
+  const last = (head.split(/[.!?\n]/).pop() ?? "").trim().split(/\s+/).pop() ?? "";
+  if (/^(?:que|quien|quién|como|porque|cuando|donde|dónde|y|e|o|u|pero|de|a|al|su|sus|el|la|un|una)$/i.test(last)) {
+    return null;
+  }
+  const comma = /^[ \t]*,[ \t]*/.exec(after);
+  const skipAfter = comma?.[0].length ?? 0;
+  const next = after.slice(skipAfter);
+  const nextWords = next.trimStart();
+  if (!head.trim() && (!nextWords || /^(?:y|e|o|u|pero|porque|que)\b/i.test(nextWords))) return null;
+  const glue = head && /^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9¿¡]/.test(next) ? " " : "";
+  return { text: `${head}${glue}`, skipAfter };
 }
 
 function redactCapitalPairs(
