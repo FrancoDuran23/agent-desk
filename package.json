@@ -6,6 +6,7 @@
     "dev": "next dev",
     "dev:cf": "opennextjs-cloudflare build && wrangler dev",
     "build": "next build",
+    "test": "node scripts/unit.mjs",
     "start": "next start",
     "db:setup": "wrangler d1 migrations apply DB --local",
     "cf:types": "wrangler types"

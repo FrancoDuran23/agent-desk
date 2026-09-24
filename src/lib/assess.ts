@@ -1,6 +1,18 @@
 import type { Severity } from "./types";
 
-export type ChildHint = "alumna" | "alumno" | "adolescente" | "varios" | "estudiante" | "no-claro";
+export type ChildHint =
+  | "alumna"
+  | "alumno"
+  | "hijo-vecina"
+  | "hija-vecina"
+  | "hijo-vecino"
+  | "hija-vecino"
+  | "hijo"
+  | "hija"
+  | "adolescente"
+  | "varios"
+  | "estudiante"
+  | "no-claro";
 
 export interface Signals {
   severity: Severity;
@@ -62,24 +74,44 @@ export function scan(text: string): Signals {
 }
 
 function detectChild(text: string): ChildHint {
-  const alumna = /\b(alumnas|alumna|nenas|nena|niñas|niña|hijas|hija)\b/i.test(text);
-  const alumno = /\b(alumnos|alumno|nenes|nene|niños|niño|hijos|hijo)\b/i.test(text);
-  const adolescente = /\badolescentes?\b/i.test(text);
-  const varios = /\b(varios|varias|los chicos|las chicas|estudiantes)\b/i.test(text) || (alumna && alumno);
-  if (varios) return "varios";
+  const alumna = /\b(alumnas|alumna)\b/i.test(text);
+  const alumno = /\b(alumnos|alumno)\b/i.test(text);
+  const girl = /\b(hija|niña|nena|niñas|nenas|hijas)\b/i.test(text);
+  const boy = /\b(hijo|niño|nene|niños|nenes|hijos)\b/i.test(text);
+  const vecina = /\bvecinas?\b/i.test(text);
+  const vecino = /\bvecinos?\b/i.test(text);
+  if (/\b(varios|varias|los chicos|las chicas|estudiantes)\b/i.test(text) || (alumna && alumno) || (girl && boy)) {
+    return "varios";
+  }
+  if ((girl || boy) && vecina) return girl ? "hija-vecina" : "hijo-vecina";
+  if ((girl || boy) && vecino) return girl ? "hija-vecino" : "hijo-vecino";
   if (alumna) return "alumna";
   if (alumno) return "alumno";
-  if (adolescente) return "adolescente";
+  if (girl) return "hija";
+  if (boy) return "hijo";
+  if (/\badolescentes?\b/i.test(text)) return "adolescente";
   if (/\b(estudiante|menor|chico|chica)\b/i.test(text)) return "estudiante";
   return "no-claro";
 }
 
 export function whoAtRisk(hint: ChildHint): string {
   switch (hint) {
+    case "hija-vecina":
+      return "la hija de una vecina";
+    case "hijo-vecina":
+      return "el hijo de una vecina";
+    case "hija-vecino":
+      return "la hija de un vecino";
+    case "hijo-vecino":
+      return "el hijo de un vecino";
     case "alumna":
       return "una alumna";
     case "alumno":
       return "un alumno";
+    case "hija":
+      return "la niña";
+    case "hijo":
+      return "el niño";
     case "adolescente":
       return "una adolescente o un adolescente";
     case "varios":
@@ -87,7 +119,7 @@ export function whoAtRisk(hint: ChildHint): string {
     case "estudiante":
       return "un estudiante";
     default:
-      return "una niña, niño o adolescente, si la situación los involucra";
+      return "un niño o niña";
   }
 }
 
