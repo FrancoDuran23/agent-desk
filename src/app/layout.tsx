@@ -9,10 +9,10 @@ export const metadata: Metadata = {
     template: "%s · Cuidado",
   },
   description:
-    "Para maestros, directivos y cuidadores. Cuidado envía el aviso al servicio local del departamento y muestra las alertas, sin el relato.",
+    "Saber dónde actuar para prevenir la violencia contra la infancia. Cada aviso llega anónimo a la oficina local y se suma a un mapa por departamento.",
   openGraph: {
     title: "Cuidado",
-    description: "El aviso llega al servicio local del departamento. El mapa muestra cantidades y urgencia, sin el relato.",
+    description: "Avisos anónimos por departamento, para ver dónde enfocar la prevención.",
     type: "website",
     locale: "es_AR",
   },
@@ -44,15 +44,25 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             Cuidado
           </Link>
           <nav className="topnav" aria-label="Principal">
-            <Link className="nav-quiet" href="/#como-funciona">
-              Cómo funciona
-            </Link>
-            <Link className="nav-quiet" href="/#privacidad">
-              Privacidad
-            </Link>
-            <Link className="nav-quiet" href="/alertas">
-              Alertas
-            </Link>
+            <div className="nav-links">
+              <Link className="nav-quiet" href="/#como-funciona">
+                Cómo funciona
+              </Link>
+              <Link className="nav-quiet" href="/#privacidad">
+                Privacidad
+              </Link>
+              <Link className="nav-quiet" href="/alertas">
+                Alertas
+              </Link>
+            </div>
+            <details className="nav-more">
+              <summary>Menú</summary>
+              <div>
+                <Link href="/#como-funciona">Cómo funciona</Link>
+                <Link href="/#privacidad">Privacidad</Link>
+                <Link href="/alertas">Alertas</Link>
+              </div>
+            </details>
             <Link className="nav-cta" href="/probar">
               Probar
             </Link>

@@ -110,6 +110,7 @@ export interface PersistenceInfo {
 export interface PublicCase {
   id: string;
   province: string;
+  departamento: string;
   mode: CaseRecord["mode"];
   modeNote: string;
   severity: Severity | null;

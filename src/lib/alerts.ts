@@ -106,6 +106,22 @@ export function rangoId(value: string | null | undefined): RangoId {
   return "30d";
 }
 
+export function urgentCount(cell: ConteoAlerta): number {
+  return cell.porUrgencia.urgente + cell.porUrgencia.emergencia;
+}
+
+export function topPorUrgencia(cells: ConteoAlerta[], limit = 3): ConteoAlerta[] {
+  return [...cells]
+    .filter((cell) => urgentCount(cell) > 0)
+    .sort((a, b) => {
+      const byUrgent = urgentCount(b) - urgentCount(a);
+      if (byUrgent !== 0) return byUrgent;
+      if (b.total !== a.total) return b.total - a.total;
+      return a.departamento.localeCompare(b.departamento, "es");
+    })
+    .slice(0, limit);
+}
+
 export function fillFor(urgencia: Severity | null): string {
   if (urgencia === "emergencia") return "#8d3d32";
   if (urgencia === "urgente") return "#d07a45";
