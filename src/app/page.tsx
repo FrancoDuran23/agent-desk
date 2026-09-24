@@ -9,18 +9,22 @@ export const metadata: Metadata = {
     "Saber dónde actuar para prevenir la violencia contra la infancia. Docentes y cuidadores avisan en minutos. El mapa muestra el departamento, no el relato.",
 };
 
-const STEPS = [
+const AGENTS = [
   {
-    title: "Avisás",
-    text: "Contás lo que viste, sin el nombre ni la dirección.",
+    title: "Escucha",
+    text: "Ordena qué pasó y qué tan urgente es. Le pasa el relato en roles.",
   },
   {
-    title: "Se anonimiza y llega a la oficina local",
-    text: "El aviso sale al servicio de protección de ese departamento.",
+    title: "Privacidad",
+    text: "Quita nombres y la dirección. Le pasa un texto que no identifica.",
   },
   {
-    title: "Se suma al mapa",
-    text: "Las instituciones ven dónde actuar, no el relato.",
+    title: "Ruta",
+    text: "Elige la oficina local de ese departamento y le pasa el destino.",
+  },
+  {
+    title: "Aviso",
+    text: "Cierra el mensaje y lo envía a esa oficina.",
   },
 ];
 
@@ -64,20 +68,28 @@ export default function HomePage() {
         <MapSketch />
       </section>
 
-      <section className="land-steps" id="como-funciona" aria-labelledby="pasos-titulo">
-        <h2 id="pasos-titulo" className="visually-hidden">
-          Cómo funciona
-        </h2>
-        <ol>
-          {STEPS.map((step, index) => (
-            <li key={step.title}>
-              <span>0{index + 1}</span>
-              <h3>{step.title}</h3>
-              <p>{step.text}</p>
-            </li>
-          ))}
-        </ol>
-        <p className="steps-note">Escucha, Privacidad, Ruta y Aviso preparan cada envío.</p>
+      <section className="orchestra" id="como-funciona" aria-labelledby="pasos-titulo">
+        <div className="orchestra-intro">
+          <p className="eyebrow">Cómo funciona</p>
+          <h2 id="pasos-titulo">Cuatro agentes, en orden.</h2>
+          <p>Avisás. Ellos preparan el envío. La oficina lo recibe y el mapa muestra dónde prevenir.</p>
+        </div>
+        <div className="pipe-track">
+          <p className="beat beat-start">Avisás</p>
+          <ol className="pipe">
+            {AGENTS.map((agent, index) => (
+              <li key={agent.title} className="beat">
+                <span>0{index + 1}</span>
+                <h3>{agent.title}</h3>
+                <p>{agent.text}</p>
+              </li>
+            ))}
+          </ol>
+          <div className="pipe-result">
+            <p className="beat beat-sent">Aviso enviado a la oficina local</p>
+            <p className="beat beat-plus">+1 en el mapa</p>
+          </div>
+        </div>
       </section>
 
       <section className="land-inst" aria-labelledby="inst-titulo">
