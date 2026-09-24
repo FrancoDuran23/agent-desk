@@ -1,6 +1,6 @@
 # Casa de agentes
 
-[![Deploy to Webflow](https://webflow.com/img/deploy-dark.svg)](https://webflow.com/dashboard/cloud/deploy?repo=https://github.com/FrancoDuran23/agent-desk/tree/cursor/casa-de-agentes-abaa)
+[![Deploy to Webflow](https://webflow.com/img/deploy-dark.svg)](https://webflow.com/dashboard/cloud/deploy?repo=https://github.com/FrancoDuran23/agent-desk/)
 
 Un reality / sitcom para el **Webflow Cloud × Nerdearla 2026 App Challenge**.
 
