@@ -35,7 +35,7 @@ const EMERGENCY =
   /\b(arma de fuego|un arma|dispar\w*|no respira|convulsion\w*|convulsión\w*|se desmay\w*|amenaza de muerte|peligro inmediato|se está lastimando|se esta lastimando|en este momento lo está|en este momento la está)\b/i;
 
 const PHYSICAL =
-  /\b(golpe(?:s|ó|o|aron|aba)?|pegó|pego|pegan|pegaba|pegarle|moret[oó]n\w*|empuj\w*|cachetad\w*|cintur[oó]n|zamarre\w*|patad\w*|amenaz\w*|encerr\w*|no le dan de comer|lo dejan solo|la dejan sola|abandono)\b/i;
+  /(?<![\p{L}\p{N}_])(?:golpe(?:s|ó|o|aron|aba)?|pegó|pego|pegan|pegaba|pegarle|pegaron|lastimó|lastimo|lastimaron|lastimaba|lastimarle|lastiman|moret[oó]n(?:es)?|empuj\p{L}*|cachetad\p{L}*|cintur[oó]n|zamarre\p{L}*|patad\p{L}*|amenaz\p{L}*|encerr\p{L}*|no le dan de comer|lo dejan solo|la dejan sola|abandono)(?![\p{L}\p{N}_])/iu;
 
 const CONCERN =
   /\b(grita|gritó|grito|insult\w*|humill\w*|hambre|no come|falta|llora|no quiere ir|no quiere volver|descuido|sin dormir)\b/i;
