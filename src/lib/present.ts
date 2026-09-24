@@ -1,6 +1,6 @@
 import type { CaseRecord, PersistenceInfo, PublicCase, PublicStep } from "./types";
 
-export const STEP_MS = 1700;
+export const STEP_MS = 2300;
 
 export function phase(createdAt: number, count: number, now = Date.now()) {
   const elapsed = Math.max(0, now - createdAt);

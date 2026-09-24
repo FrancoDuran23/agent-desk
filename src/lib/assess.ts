@@ -117,6 +117,12 @@ export const SEVERITY_LABEL: Record<Severity, string> = {
 const BAD_ADVICE =
   /no (?:es necesario|hace falta) (?:denunciar|la denuncia|llamar)|sin denunciar|evit[aá] la denuncia|podés no denunciar|podes no denunciar/i;
 
+export function womanAlsoAtRisk(text: string): boolean {
+  return /\b(mamá|mama|madre|madrastra|mujer)\b[^.?!\n]{0,70}\b(peg\w*|golpe\w*|amenaz\w*|grit\w*|empuj\w*)|\b(peg\w*|golpe\w*|amenaz\w*|grit\w*|empuj\w*)\b[^.?!\n]{0,70}\b(mamá|mama|madre|madrastra|mujer)\b/i.test(
+    text,
+  );
+}
+
 export function outputUnsafe(text: string): boolean {
   return SEXUAL.test(text) || GRAPHIC.test(text) || BAD_ADVICE.test(text);
 }

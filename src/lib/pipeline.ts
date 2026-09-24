@@ -1,4 +1,4 @@
-import { scan, SEVERITY_LABEL, severityReason, whoAtRisk } from "./assess";
+import { scan, SEVERITY_LABEL, severityReason, whoAtRisk, womanAlsoAtRisk } from "./assess";
 import { draftAviso } from "./draft-aviso";
 import { assistDraft } from "./llm";
 import { OMITTED_NARRATIVE, redact, softenGraphic } from "./redact";
@@ -23,7 +23,7 @@ export async function buildCase(input: {
   const redactions = signals.sexual ? withOmission(softened.redactions) : softened.redactions;
   const localNarrative = signals.sexual ? OMITTED_NARRATIVE : softened.text || "No quedó una síntesis utilizable.";
   const who = whoAtRisk(signals.childHint);
-  const mentionsAdultWoman = /\b(mamá|mama|madre|mujer|madrastra)\b/i.test(input.narrative);
+  const mentionsAdultWoman = womanAlsoAtRisk(input.narrative);
   const route = buildRoute(signals, input.province, mentionsAdultWoman);
   const localSteps = nextStepsFor(route);
   const assisted = await assistDraft({
