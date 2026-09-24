@@ -1000,8 +1000,18 @@ blockquote footer { margin-top: 0.45rem; color: var(--muted); }
   font-size: 1.15rem;
   line-height: 1.55;
 }
-.land-hero .map-sketch { box-shadow: 0 22px 50px rgb(22 24 20 / 6%); }
-.land-hero .map-sketch svg { max-height: 30rem; }
+.land-hero .map-sketch {
+  width: fit-content;
+  max-width: 100%;
+  justify-self: end;
+  box-shadow: 0 22px 50px rgb(22 24 20 / 6%);
+}
+.land-hero .map-sketch svg {
+  width: auto;
+  height: 28rem;
+  max-width: 100%;
+  max-height: none;
+}
 
 .land-steps {
   max-width: 76rem;
@@ -1131,6 +1141,7 @@ blockquote footer { margin-top: 0.45rem; color: var(--muted); }
 @media (max-width: 980px) {
   .land-hero, .land-inst, .insight { grid-template-columns: 1fr; }
   .land-hero { padding-top: 2.1rem; align-items: start; }
+  .land-hero .map-sketch { justify-self: center; }
 }
 @media (max-width: 720px) {
   .land-steps ol { grid-template-columns: 1fr; gap: 1.25rem; }
@@ -1138,7 +1149,7 @@ blockquote footer { margin-top: 0.45rem; color: var(--muted); }
   .privacy-strip p { padding-left: 1.1rem; padding-right: 1.1rem; }
   .land-hero h1 { font-size: 2.25rem; }
   .land-inst { padding-top: 2.6rem; }
-  .land-hero .map-sketch svg { max-height: 20rem; }
+  .land-hero .map-sketch svg { height: 17rem; }
 }
 
 @media print {
