@@ -1,5 +1,8 @@
 {
   "cloud": {
-    "framework": "nextjs"
-  }
+    "framework": "nextjs",
+    "app_id": "97e0f81a-08c3-40cb-9199-7c9b6015746b",
+    "environment_id": "0bef1b0c-3d6b-4835-bf95-588cfbac70e7"
+  },
+  "siteId": "6ab5735e9d3d50c49283e247"
 }
