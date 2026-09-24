@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { buildTablero, type CasoAgregable } from "./alerts";
+import { buildTablero, topPorUrgencia, type CasoAgregable, type ConteoAlerta } from "./alerts";
 
 const NOW = Date.parse("2026-09-24T15:00:00.000Z");
 
@@ -65,4 +65,32 @@ describe("agregación de alertas", () => {
     assert.equal(cell?.reales, 1);
     assert.ok(largo.departamentos.every((item) => item.provincia === "Santa Fe"));
   });
+
+  it("ranks departamentos by urgent alerts", () => {
+    const cells = [
+      fake("a", "A", { urgente: 1 }),
+      fake("b", "B", { urgente: 2, emergencia: 2 }),
+      fake("c", "C", { preocupacion: 9 }),
+      fake("d", "D", { urgente: 3 }),
+    ];
+    assert.deepEqual(
+      topPorUrgencia(cells, 3).map((item) => item.id),
+      ["b", "d", "a"],
+    );
+  });
 });
+
+function fake(id: string, departamento: string, counts: Partial<ConteoAlerta["porUrgencia"]>): ConteoAlerta {
+  const porUrgencia = { acompanamiento: 0, preocupacion: 0, urgente: 0, emergencia: 0, ...counts };
+  const total = porUrgencia.acompanamiento + porUrgencia.preocupacion + porUrgencia.urgente + porUrgencia.emergencia;
+  return {
+    id,
+    provincia: "Buenos Aires",
+    departamento,
+    total,
+    demostracion: total,
+    reales: 0,
+    porUrgencia,
+    urgencia: null,
+  };
+}

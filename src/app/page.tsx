@@ -1,223 +1,120 @@
 import { MapSketch } from "@/components/map-sketch";
+import { buildTablero, topPorUrgencia, urgentCount } from "@/lib/alerts";
 import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Cuidado",
   description:
-    "Para maestros, directivos y cuidadores. El aviso llega al servicio local del departamento. El mapa muestra cuántos hay, y qué tan urgentes, sin el relato.",
+    "Saber dónde actuar para prevenir la violencia contra la infancia. Docentes y cuidadores avisan en minutos. El mapa muestra el departamento, no el relato.",
 };
 
-const AGENTS = [
+const STEPS = [
   {
-    n: "01",
-    title: "Escucha",
-    text: "Ordena qué pasó, quién está en riesgo y qué tan urgente se lee. El relato queda en roles, no en nombres.",
+    title: "Avisás",
+    text: "Contás lo que viste, sin el nombre ni la dirección.",
   },
   {
-    n: "02",
-    title: "Privacidad",
-    text: "Saca nombres, iniciales, documentos, teléfonos y direcciones. Una dirección queda como [domicilio omitido].",
+    title: "Se anonimiza y llega a la oficina local",
+    text: "El aviso sale al servicio de protección de ese departamento.",
   },
   {
-    n: "03",
-    title: "Ruta",
-    text: "Elige el servicio local del departamento: por ejemplo, Servicio Local de Protección de Derechos.",
+    title: "Se suma al mapa",
+    text: "Las instituciones ven dónde actuar, no el relato.",
+  },
+];
+
+const VALUES = [
+  {
+    title: "Ver dónde se concentran",
+    text: "Los avisos urgentes se leen por departamento.",
   },
   {
-    n: "04",
-    title: "Aviso",
-    text: "Redacta el mensaje y lo envía. Ves la institución, la hora, una referencia y el texto que salió.",
+    title: "Priorizar",
+    text: "Ese orden dice dónde hace falta un equipo primero.",
+  },
+  {
+    title: "Prevenir",
+    text: "Ahí se pueden poner talleres en las escuelas y ver si los avisos bajan.",
   },
 ];
 
 export default function HomePage() {
+  const tablero = buildTablero({ now: Date.now(), rangeId: "30d", province: "", casos: [] });
+  const foco = topPorUrgencia(tablero.departamentos, 3);
+
   return (
-    <main className="home" id="contenido">
-      <section className="hero">
-        <div className="hero-copy">
-          <p className="eyebrow">Para maestros, directivos y cuidadores</p>
-          <h1>Un aviso a la institución, cuando viste algo que involucra a una niña, un niño o un adolescente.</h1>
-          <p className="hero-lede">
-            Cuidado escucha el relato, quita lo que identifica y envía el mensaje al servicio local del departamento.
-            El mapa del país muestra cuántos avisos hay, y qué tan urgentes, sin el texto del caso.
+    <main className="land" id="contenido">
+      <section className="land-hero">
+        <div className="land-copy">
+          <h1>Saber dónde actuar para prevenir la violencia contra la infancia</h1>
+          <p>
+            Docentes y cuidadores avisan en minutos. Cada aviso llega anónimo a la oficina local y se suma a un mapa
+            por departamento que muestra dónde enfocar la prevención.
           </p>
           <div className="hero-actions">
-            <Link className="btn btn-primary" href="/probar">
-              Probar Cuidado
+            <Link className="btn btn-primary" href="/alertas">
+              Ver el mapa
             </Link>
-            <Link className="btn btn-ghost" href="/#como-funciona">
-              Cómo funciona
+            <Link className="btn btn-ghost" href="/probar">
+              Hacer un aviso
             </Link>
           </div>
-          <ol className="hero-path" aria-label="Recorrido">
-            <li>Escucha</li>
-            <li>Privacidad</li>
-            <li>Ruta</li>
-            <li>Aviso</li>
-          </ol>
         </div>
-        <aside className="folio" aria-hidden="true">
-          <p className="folio-kicker">Recorrido</p>
-          <ol className="folio-steps">
-            <li>
-              <span>01</span>
-              <strong>Escucha</strong>
-              <small>Listo</small>
-            </li>
-            <li>
-              <span>02</span>
-              <strong>Privacidad</strong>
-              <small>Listo</small>
-            </li>
-            <li>
-              <span>03</span>
-              <strong>Ruta</strong>
-              <small>Listo</small>
-            </li>
-            <li className="is-current">
-              <span>04</span>
-              <strong>Aviso</strong>
-              <small>Enviado</small>
-            </li>
-          </ol>
-          <div className="folio-card">
-            <p className="folio-kicker">Enviado</p>
-            <p className="folio-title">Aviso enviado al Servicio Local de Protección de Derechos – Rosario</p>
-            <dl>
-              <div>
-                <dt>Estado</dt>
-                <dd>Entregado</dd>
-              </div>
-              <div>
-                <dt>Referencia</dt>
-                <dd>AV-240924-7F3A91</dd>
-              </div>
-            </dl>
-          </div>
-        </aside>
+        <MapSketch />
       </section>
 
-      <section className="band" id="como-funciona" aria-labelledby="como-titulo">
-        <div className="section-intro">
-          <p className="eyebrow">Cómo funciona</p>
-          <h2 id="como-titulo">Cuatro agentes, en orden, hasta que el aviso sale.</h2>
-          <p>Cada uno hace una sola cosa. El recorrido se ve mientras trabaja.</p>
-        </div>
-        <ol className="process">
-          {AGENTS.map((agent) => (
-            <li key={agent.title}>
-              <span>{agent.n}</span>
-              <h3>{agent.title}</h3>
-              <p>{agent.text}</p>
+      <section className="land-steps" id="como-funciona" aria-labelledby="pasos-titulo">
+        <h2 id="pasos-titulo" className="visually-hidden">
+          Cómo funciona
+        </h2>
+        <ol>
+          {STEPS.map((step, index) => (
+            <li key={step.title}>
+              <span>0{index + 1}</span>
+              <h3>{step.title}</h3>
+              <p>{step.text}</p>
             </li>
           ))}
         </ol>
+        <p className="steps-note">Escucha, Privacidad, Ruta y Aviso preparan cada envío.</p>
       </section>
 
-      <section className="band" id="alertas-pais" aria-labelledby="alertas-titulo">
-        <div className="alert-landing">
-          <div className="section-intro">
-            <p className="eyebrow">Alertas por departamento</p>
-            <h2 id="alertas-titulo">El aviso cierra en el departamento. El mapa muestra el conjunto.</h2>
-            <p>
-              Después de la provincia se elige el departamento, o se usa la ubicación del navegador para resolverlo.
-              Guardamos esa jurisdicción, no el punto exacto. En el mapa cada departamento se colorea por cantidad y
-              urgencia.
-            </p>
-            <ul className="preview-points">
-              <li>El aviso nombra al servicio local de ese departamento.</li>
-              <li>El mapa no muestra relatos, nombres ni direcciones.</li>
-              <li>Los avisos reales se suman a los datos de demostración.</li>
-            </ul>
-            <Link className="btn btn-primary" href="/alertas">
-              Ver alertas
-            </Link>
-          </div>
-          <MapSketch />
+      <section className="land-inst" aria-labelledby="inst-titulo">
+        <div className="land-copy">
+          <p className="eyebrow">Para instituciones</p>
+          <h2 id="inst-titulo">Con estos datos se sabe dónde actuar.</h2>
+          <ul>
+            {VALUES.map((item) => (
+              <li key={item.title}>
+                <strong>{item.title}</strong>
+                <span>{item.text}</span>
+              </li>
+            ))}
+          </ul>
         </div>
+        <aside className="focus-card" aria-label="Departamentos con más avisos urgentes">
+          <p className="eyebrow">Avisos urgentes · 30 días</p>
+          <ol>
+            {foco.map((cell) => (
+              <li key={cell.id}>
+                <span>
+                  <strong>{cell.departamento}</strong>
+                  <small>{cell.provincia}</small>
+                </span>
+                <span className="focus-count">
+                  <b>{urgentCount(cell)}</b>
+                  <small>urgentes</small>
+                </span>
+              </li>
+            ))}
+          </ol>
+          <p className="focus-note">Datos de demostración</p>
+        </aside>
       </section>
 
-      <section className="band-preview" aria-labelledby="vista-titulo">
-        <div className="preview-layout">
-          <div className="section-intro">
-            <p className="eyebrow">El resultado</p>
-            <h2 id="vista-titulo">El aviso sale. Se ve exactamente qué se envió.</h2>
-            <p>
-              Cuando Aviso termina, el mensaje figura enviado a la institución, con hora y referencia. El texto es la
-              versión reducida.
-            </p>
-            <ul className="preview-points">
-              <li>Los nombres pasan a ser el rol.</li>
-              <li>El domicilio queda como [domicilio omitido].</li>
-              <li>El teléfono no entra en el aviso.</li>
-            </ul>
-          </div>
-          <article className="preview-doc">
-            <p className="folio-kicker on-paper">Ejemplo</p>
-            <h3>Aviso enviado al organismo de protección de derechos</h3>
-            <dl className="preview-meta">
-              <div>
-                <dt>Hora</dt>
-                <dd>24 de septiembre de 2026, 18:42</dd>
-              </div>
-              <div>
-                <dt>Referencia</dt>
-                <dd>AV-240924-7F3A91</dd>
-              </div>
-              <div>
-                <dt>Estado</dt>
-                <dd>
-                  <span className="pill-ok">Entregado</span>
-                </dd>
-              </div>
-            </dl>
-            <div className="preview-sent">
-              <h4>Lo que se envió</h4>
-              <p>
-                Una alumna contó que en su casa le pegan cuando se porta mal y que tiene miedo de volver. En el aviso
-                no figuran nombres, documentos ni un domicilio.
-              </p>
-            </div>
-          </article>
-        </div>
-      </section>
-
-      <section className="band" id="privacidad" aria-labelledby="privacidad-titulo">
-        <div className="section-intro">
-          <p className="eyebrow">Privacidad</p>
-          <h2 id="privacidad-titulo">Lo que identifica a una persona no viaja en el aviso.</h2>
-          <p>La reducción ocurre antes del envío. El registro explica el tipo de dato y el motivo, no el dato original.</p>
-        </div>
-        <ul className="trust-grid">
-          <li>
-            <h3>El relato original no se guarda</h3>
-            <p>Queda la versión reducida. El texto tal como se escribió no entra en la base.</p>
-          </li>
-          <li>
-            <h3>Sin nombres ni iniciales</h3>
-            <p>Un nombre pasa a ser el rol: una alumna, el hijo de una vecina, un adulto del hogar.</p>
-          </li>
-          <li>
-            <h3>Sin domicilio ni teléfono</h3>
-            <p>Una dirección se escribe [domicilio omitido]. El teléfono no aparece en el mensaje.</p>
-          </li>
-          <li>
-            <h3>El archivo se queda en el navegador</h3>
-            <p>Si se adjunta algo, no se sube. Solo se anota el tipo y el tamaño.</p>
-          </li>
-        </ul>
-      </section>
-
-      <section className="close-band" aria-labelledby="cierre-titulo">
-        <div className="close-inner">
-          <p className="eyebrow light">Para usar ahora</p>
-          <h2 id="cierre-titulo">Si viste algo, el aviso puede salir ahora.</h2>
-          <p>Contás lo que observaste. Cuidado recorre los cuatro agentes y muestra el envío.</p>
-          <Link className="btn btn-light" href="/probar">
-            Probar Cuidado
-          </Link>
-        </div>
+      <section className="privacy-strip" id="privacidad">
+        <p>Sin nombres y sin ubicación exacta. Solo el departamento.</p>
       </section>
     </main>
   );

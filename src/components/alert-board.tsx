@@ -1,10 +1,17 @@
 "use client";
 
-import { RANGOS, type ConteoAlerta, type RangoId, type TableroAlertas, fillFor } from "@/lib/alerts";
+import { RANGOS, type RangoId, type TableroAlertas, fillFor, topPorUrgencia, urgentCount } from "@/lib/alerts";
 import { PROVINCES } from "@/lib/jurisdictions";
 import { withBase } from "@/lib/paths";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { DeptShapes, MAP_VIEW } from "./dept-shapes";
+
+const PERIODO: Record<RangoId, string> = {
+  "24h": "las últimas 24 horas",
+  "7d": "los últimos 7 días",
+  "30d": "los últimos 30 días",
+  "90d": "los últimos 90 días",
+};
 
 const URGENCIA: Record<string, string> = {
   acompanamiento: "Acompañamiento",
@@ -62,9 +69,39 @@ export function AlertBoard({ initial }: { initial: TableroAlertas }) {
   }, [province, tablero.departamentos]);
 
   const selectedCell = tablero.departamentos.find((cell) => cell.id === selected) ?? null;
+  const foco = topPorUrgencia(tablero.departamentos, 3);
 
   return (
     <div className="alert-board">
+      <header className="insight">
+        <div>
+          <p className="eyebrow">Para instituciones</p>
+          <h1>Dónde enfocar la prevención</h1>
+          <p>
+            En {PERIODO[rango]}, estos departamentos concentran los avisos urgentes. Ahí se puede priorizar equipos y
+            talleres en las escuelas.
+          </p>
+        </div>
+        {foco.length > 0 ? (
+          <ol className="insight-list">
+            {foco.map((cell, index) => (
+              <li key={cell.id}>
+                <span>0{index + 1}</span>
+                <strong>
+                  {cell.departamento}
+                  <small>{cell.provincia}</small>
+                </strong>
+                <span className="focus-count">
+                  <b>{urgentCount(cell)}</b>
+                  <small>urgentes</small>
+                </span>
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <p className="insight-empty">Sin avisos urgentes en este período.</p>
+        )}
+      </header>
       <div className="alert-tools">
         <label>
           <span>Provincia</span>
