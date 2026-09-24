@@ -1,27 +1,39 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { BindingPills } from "@/components/binding-pills";
-import { ChatPanel } from "@/components/chat-panel";
-import { Confessional } from "@/components/confessional";
-import { Deliverables } from "@/components/deliverables";
-import { Designer } from "@/components/designer";
-import { Interventions } from "@/components/interventions";
-import { useSeason } from "@/components/use-season";
-import { formatTimer } from "@/lib/paths";
+import { useEffect, useMemo, useState } from "react";
+import {
+  dayInHouse,
+  deriveContestants,
+  dramaLevel,
+  narratorLine,
+} from "@/lib/show-state";
+import { BroadcastBar, ChannelBug, Ticker } from "./broadcast-chrome";
+import { ChatPanel } from "./chat-panel";
+import { ConfessionalOverlay, ConfessionalRail } from "./confessional";
+import { ContestantRow } from "./contestants";
+import { Deliverables } from "./deliverables";
+import { DramaMeter } from "./drama-meter";
+import { GalaScreen } from "./gala";
+import { HouseMap } from "./house-map";
+import { Interventions } from "./interventions";
+import { SitePreview } from "./site-preview";
+import { useSeason } from "./use-season";
 
 const TABS = [
-  ["chat", "Chat"],
-  ["living", "Living"],
-  ["vos", "Vos"],
-  ["entrega", "Entrega"],
+  ["casa", "Casa"],
+  ["prueba", "Prueba"],
+  ["vivo", "En vivo"],
+  ["gala", "Gala"],
 ] as const;
 
 export function House({ id }: { id: string }) {
   const { run, error, booting, act, publish } = useSeason(id);
-  const [tab, setTab] = useState<(typeof TABS)[number][0]>("living");
+  const [mounted, setMounted] = useState(false);
+  const [tab, setTab] = useState<(typeof TABS)[number][0]>("casa");
   const [visual, setVisual] = useState(0);
+
+  useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
     if (!run) return;
@@ -30,83 +42,121 @@ export function House({ id }: { id: string }) {
 
   useEffect(() => {
     if (!run || run.paused || run.status !== "live") return;
-    const timer = setInterval(() => setVisual((value) => Math.max(0, value - 1000)), 1000);
+    const timer = setInterval(() => setVisual((v) => Math.max(0, v - 1000)), 1000);
     return () => clearInterval(timer);
   }, [run?.paused, run?.status, run?.updatedAt]);
 
-  if (booting && !run) {
-    return <main className="grid min-h-dvh place-items-center px-6 text-center"><p className="display text-4xl">Abriendo la casa…</p></main>;
-  }
-  if (!run) {
+  const contestants = useMemo(() => (run ? deriveContestants(run) : []), [run]);
+  const drama = run ? dramaLevel(run) : 0;
+  const narrator = run ? narratorLine(run) : "";
+  const day = run ? dayInHouse(run) : 1;
+
+  if (!mounted || (booting && !run)) {
     return (
-      <main className="mx-auto flex min-h-dvh max-w-lg flex-col justify-center gap-3 px-6">
-        <p className="display text-4xl">No está la temporada</p>
-        <p>{error || "Capaz el proceso se reinició y la memoria se fue con él."}</p>
-        <Link href="/" className="hard-sm w-fit bg-[#ffb703] px-3 py-2 font-bold">Otra temporada</Link>
+      <main className="grid min-h-dvh place-items-center px-6 text-center">
+        <div>
+          <span className="rec mx-auto mb-3 block" />
+          <p className="display text-5xl text-white">Abriendo la casa…</p>
+          <p className="mt-2 text-sm text-[#a89bb8]">Calentando cámaras y confesionario</p>
+        </div>
       </main>
     );
   }
 
-  const urgent = visual < 45000;
+  if (!run) {
+    return (
+      <main className="mx-auto flex min-h-dvh max-w-lg flex-col justify-center gap-3 px-6">
+        <p className="display text-5xl">Temporada no encontrada</p>
+        <p className="text-[#cbbfe0]">{error || "Capaz el proceso se reinició y la memoria se fue con él."}</p>
+        <Link href="/" className="w-fit rounded-full bg-[#ff2d6a] px-4 py-2 font-bold text-white">
+          Otra temporada
+        </Link>
+      </main>
+    );
+  }
+
+  const showGala = run.status === "finale" || run.status === "evicted";
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-[1500px] flex-col gap-3 px-3 py-3 pb-24 lg:pb-3">
-      <header className="hard flex flex-wrap items-center justify-between gap-3 bg-white px-3 py-3">
-        <div className="min-w-0">
-          <Link href="/" className="display text-2xl">Casa de agentes</Link>
-          <p className="truncate text-sm">{run.goal}</p>
-        </div>
-        <div className={`hard-sm px-3 py-1 text-center ${urgent ? "bg-[#ff4d2e] text-white" : "bg-[#ffb703]"}`}>
-          <p className="text-[10px] font-bold tracking-widest">EL CASERO</p>
-          <p className="display text-3xl leading-none" aria-label={`Quedan ${formatTimer(visual)}`}>{formatTimer(visual)}</p>
-        </div>
-        <div className="flex flex-col items-end gap-2">
-          <span className="hard-sm bg-white px-2 py-1 text-[11px] font-bold">
-            {run.mode === "en-vivo" ? "EN VIVO · LLM" : "SIMULACRO"}
-          </span>
-          <BindingPills />
-        </div>
-      </header>
-      {run.round ? (
-        <p className="tape px-3 py-1 text-center text-sm font-bold">{run.round.title} · {run.round.subtitle}</p>
-      ) : null}
+    <main className="relative mx-auto flex min-h-dvh max-w-[1500px] flex-col gap-3 px-3 py-3 pb-24 lg:pb-3">
+      <ChannelBug />
+      <BroadcastBar run={run} visual={visual} />
+      <Ticker run={run} />
+
       {run.awaiting ? (
-        <div className="hard bg-[#ff3d8a] px-3 py-3 text-white">
-          <p className="display text-2xl">{run.awaiting.title}</p>
-          <p className="text-sm">{run.awaiting.body}</p>
-          <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <div className="broadcast-card-glow border border-[#ff2d6a]/50 bg-[#ff2d6a22] px-4 py-3">
+          <p className="text-[11px] font-black tracking-[0.25em] text-[#ff8fb3] uppercase">Placa de nominados</p>
+          <p className="display text-3xl text-white">{run.awaiting.title}</p>
+          <p className="text-sm text-[#f0e8ff]">{run.awaiting.body}</p>
+          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
             {(["ansioso", "dramatica", "tryhard", "meme"] as const).map((agent) => (
-              <button key={agent} type="button" onClick={() => act({ type: "salvar", agent })} className="bg-white px-2 py-2 text-sm font-bold text-[#1c140f]">
-                {agent === "ansioso" ? "Mateo" : agent === "dramatica" ? "Lola" : agent === "tryhard" ? "Facu" : "Cami"}
+              <button
+                key={agent}
+                type="button"
+                onClick={() => void act({ type: "salvar", agent })}
+                className="rounded-xl bg-white px-2 py-2 text-sm font-bold text-[#1a1228]"
+              >
+                Salvar a {agent === "ansioso" ? "Mateo" : agent === "dramatica" ? "Lola" : agent === "tryhard" ? "Facu" : "Cami"}
               </button>
             ))}
           </div>
         </div>
       ) : null}
-      {error ? <p className="hard-sm bg-white px-3 py-2 text-sm font-semibold text-[#ff4d2e]">{error}</p> : null}
-      <p className="text-xs text-[#6d5c52]">{run.modeNote} · {run.persistence.driver} · {run.persistence.beats} beats en el store</p>
 
-      <div className="grid min-h-0 flex-1 gap-3 lg:grid-cols-[minmax(260px,320px)_minmax(0,1fr)_300px] lg:h-[calc(100dvh-11rem)]">
-        <div className={`hard min-h-0 overflow-hidden bg-white ${tab === "chat" ? "block" : "hidden lg:block"}`}>
-          <ChatPanel run={run} />
+      {error ? (
+        <p className="rounded-xl border border-[#ff4d2e]/40 bg-[#ff4d2e22] px-3 py-2 text-sm font-semibold text-[#ffb4a8]">
+          {error}
+        </p>
+      ) : null}
+
+      <p className="drama text-center text-sm text-[#cbbfe0] lg:text-left">
+        Día {day} · “{narrator}”
+      </p>
+
+      <ContestantRow contestants={contestants} />
+
+      {showGala ? (
+        <GalaScreen run={run} onPublish={publish} />
+      ) : (
+        <div className="grid min-h-0 flex-1 gap-3 lg:h-[calc(100dvh-16rem)] lg:grid-cols-[minmax(240px,300px)_minmax(0,1fr)_300px]">
+          <div className={`min-h-0 space-y-3 overflow-auto ${tab === "casa" ? "block" : "hidden lg:block"}`}>
+            <HouseMap contestants={contestants} />
+            <DramaMeter level={drama} narrator={narrator} />
+          </div>
+          <div className={`min-h-0 ${tab === "prueba" ? "block" : "hidden lg:block"}`}>
+            <SitePreview run={run} />
+          </div>
+          <div className={`scroll-thin min-h-0 space-y-3 overflow-auto ${tab === "vivo" ? "block" : "hidden lg:block"}`}>
+            <ConfessionalRail run={run} />
+            <Interventions run={run} onAct={act} />
+            <div className="broadcast-card max-h-72 overflow-hidden">
+              <ChatPanel run={run} />
+            </div>
+          </div>
         </div>
-        <div className={`min-h-0 ${tab === "living" ? "block" : "hidden lg:block"}`}>
-          <Designer run={run} />
-        </div>
-        <div className={`hard scroll-thin min-h-0 space-y-4 overflow-auto bg-[#fffaf3] p-3 ${tab === "vos" ? "block" : "hidden lg:block"}`}>
-          <Confessional run={run} />
-          <Interventions run={run} onAct={act} />
-        </div>
-      </div>
-      <div id="entregables" className={tab === "entrega" ? "block" : "hidden lg:block"}>
-        <div className="hard bg-white p-3">
-          <Deliverables run={run} onPublish={publish} />
-        </div>
+      )}
+
+      <div id="entrega" className={tab === "gala" ? "block" : "hidden lg:block"}>
+        {!showGala ? (
+          <div className="broadcast-card p-3">
+            <Deliverables run={run} onPublish={publish} />
+          </div>
+        ) : null}
       </div>
 
-      <nav className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-4 border-t-[3px] border-[#1c140f] bg-[#fff3e4] lg:hidden" aria-label="Secciones">
+      <ConfessionalOverlay run={run} />
+
+      <nav
+        className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-4 border-t border-[#3a3158] bg-[#0a0612]/95 backdrop-blur lg:hidden"
+        aria-label="Secciones"
+      >
         {TABS.map(([id, label]) => (
-          <button key={id} type="button" onClick={() => setTab(id)} className={`px-2 py-3 text-sm font-bold ${tab === id ? "bg-[#1c140f] text-white" : ""}`}>
+          <button
+            key={id}
+            type="button"
+            onClick={() => setTab(id)}
+            className={`px-2 py-3 text-sm font-bold ${tab === id ? "bg-[#ff2d6a] text-white" : "text-[#cbbfe0]"}`}
+          >
             {label}
           </button>
         ))}

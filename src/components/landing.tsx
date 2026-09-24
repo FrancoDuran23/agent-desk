@@ -4,11 +4,11 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ROOMMATES } from "@/lib/agents";
 import { withBase } from "@/lib/paths";
-import { BindingPills } from "./binding-pills";
+import { Portrait } from "./portrait";
 
 const EXAMPLES = [
-  "Landing del after de Nerdearla en Jujuy: wifi, facturas y charlas que se van de horario",
-  "Meetup de jujuy.dev en un patio. Gente que codea con vista a los cerros",
+  "Landing para un after de verano: wifi, facturas y charlas que se van de horario",
+  "Meetup en un patio. Gente que labura con mate y vista al atardecer",
   "Una app que todavía no sé qué hace, pero el viernes tiene que parecer un producto",
 ];
 
@@ -44,39 +44,50 @@ export function Landing() {
   }
 
   return (
-    <main className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-8 sm:py-12">
+    <main className="relative mx-auto flex max-w-6xl flex-col gap-8 px-4 py-8 sm:py-12">
+      <div className="pointer-events-none absolute top-4 right-4 hidden items-center gap-1.5 rounded-md bg-black/40 px-2 py-1 sm:flex" aria-hidden>
+        <span className="display text-sm text-white/90">CDA</span>
+        <span className="text-[10px] font-bold tracking-widest text-[#2de2e6]">HD</span>
+      </div>
+
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="text-xs font-bold tracking-[0.22em] uppercase">Webflow Cloud × Nerdearla 2026</p>
-          <h1 className="display text-5xl leading-none sm:text-7xl">Casa de agentes</h1>
+          <div className="mb-2 inline-flex items-center gap-2 rounded-sm bg-[#ff1a3c] px-2 py-0.5 text-[11px] font-black tracking-wider text-white">
+            <span className="rec" /> EN VIVO
+          </div>
+          <p className="text-xs font-bold tracking-[0.22em] text-[#2de2e6] uppercase">Temporada 1 · Reality show</p>
+          <h1 className="display text-6xl leading-none text-white sm:text-8xl">Casa de agentes</h1>
         </div>
-        <BindingPills />
+        <p className="max-w-xs text-sm leading-relaxed text-[#cbbfe0]">
+          Cuatro roommates. Una prueba semanal. Vos sos la producción: salvás, nominás o tirás una bomba de caos.
+        </p>
       </header>
 
-      <section className="hard grid gap-6 bg-white p-5 sm:grid-cols-[1.3fr_0.7fr] sm:p-7">
+      <section className="broadcast-card-glow grid gap-6 p-5 sm:grid-cols-[1.25fr_0.75fr] sm:p-7">
         <div>
-          <p className="drama text-2xl leading-snug sm:text-3xl">
-            Cuatro roommates tienen que entregar un sitio Webflow antes de que el casero los desaloje.
+          <p className="drama text-2xl leading-snug text-white sm:text-3xl">
+            Tienen que entregar el sitio del cliente antes de la gala de eliminación.
           </p>
-          <p className="mt-3 max-w-xl text-base leading-relaxed">
-            Tirás un objetivo caótico. Ellos pelean el nombre, la copy y el CMS en un living que es el canvas de
-            Webflow. Vos entrás como la producción: salvás a alguien, vetás una frase o tirás una bomba.
+          <p className="mt-3 max-w-xl text-base leading-relaxed text-[#cbbfe0]">
+            Pelean el nombre, la copy y el look del sitio. Hay confesionario, alianzas y drama en la cocina.
+            Cuando suena el timbre del casero, alguien se va — o entregan la prueba.
           </p>
           <ol className="mt-4 grid gap-2 text-sm sm:grid-cols-3">
             {[
-              ["1", "Soltás la idea"],
-              ["2", "El living se arma solo"],
-              ["3", "Te llevás CMS, playbook y JSON"],
+              ["01", "Soltás la brief"],
+              ["02", "Ellos pelean en vivo"],
+              ["03", "Gala: ¿quién queda?"],
             ].map(([n, label]) => (
-              <li key={n} className="hard-sm bg-[#fff7ea] px-3 py-2">
-                <span className="display text-xl">{n}</span> {label}
+              <li key={n} className="rounded-xl border border-[#3a3158] bg-[#0a0612]/60 px-3 py-2">
+                <span className="display text-2xl text-[#ff2d6a]">{n}</span>
+                <span className="mt-1 block font-semibold text-[#f0e8ff]">{label}</span>
               </li>
             ))}
           </ol>
         </div>
         <form onSubmit={enter} className="flex flex-col gap-3">
-          <label className="text-sm font-bold" htmlFor="goal">
-            Objetivo de la temporada
+          <label className="text-sm font-bold text-[#f5c542]" htmlFor="goal">
+            Brief de la prueba semanal
           </label>
           <textarea
             id="goal"
@@ -84,7 +95,7 @@ export function Landing() {
             onChange={(event) => setGoal(event.target.value)}
             rows={5}
             maxLength={400}
-            className="hard-sm min-h-32 resize-y bg-[#fffdf8] px-3 py-2 outline-none focus:bg-white"
+            className="min-h-32 resize-y rounded-xl border border-[#3a3158] bg-[#0a0612] px-3 py-2 text-[#f6f0ff] outline-none focus:border-[#ff2d6a]"
           />
           <div className="flex flex-wrap gap-2">
             {EXAMPLES.map((example) => (
@@ -92,7 +103,7 @@ export function Landing() {
                 key={example}
                 type="button"
                 onClick={() => setGoal(example)}
-                className="hard-sm bg-[#ffe08a] px-2 py-1 text-left text-xs"
+                className="rounded-full border border-[#3a3158] bg-[#1a1528] px-2 py-1 text-left text-xs text-[#cbbfe0]"
               >
                 {example.slice(0, 42)}…
               </button>
@@ -101,41 +112,47 @@ export function Landing() {
           <button
             type="submit"
             disabled={pending || goal.trim().length < 3}
-            className="display hard bg-[#ff3d8a] px-4 py-3 text-xl text-white disabled:opacity-60"
+            className="display rounded-xl bg-[#ff2d6a] px-4 py-3 text-2xl text-white shadow-[0_0_30px_#ff2d6a55] disabled:opacity-60"
           >
-            {pending ? "Están peleando el sillón…" : "Entrar a la casa"}
+            {pending ? "Entrando a la casa…" : "Entrar al vivo"}
           </button>
-          {error ? <p className="text-sm font-semibold text-[#ff4d2e]">{error}</p> : null}
-          <p className="text-xs leading-relaxed text-[#5c4d43]">
-            Sin OPENAI_API_KEY corre en simulacro, con temporada completa. Con token de Webflow, el final puede crear
-            la colección de verdad.
+          {error ? <p className="text-sm font-semibold text-[#ff6b6b]">{error}</p> : null}
+          <p className="text-xs leading-relaxed text-[#8f84a8]">
+            Sin clave de IA corre igual en simulacro, con temporada completa. Con Webflow, la producción puede publicar el resultado.
           </p>
         </form>
       </section>
 
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {ROOMMATES.map((agent) => (
-          <article key={agent.id} className="hard bg-white p-4" style={{ borderTop: `10px solid ${agent.color}` }}>
-            <p className="text-3xl" aria-hidden>{agent.emoji}</p>
-            <h2 className="display text-2xl">{agent.aka}</h2>
-            <p className="text-sm font-semibold">{agent.name} · {agent.room}</p>
-            <p className="mt-2 text-sm">{agent.wants}</p>
+          <article key={agent.id} className="broadcast-card flex flex-col items-center gap-2 p-4 text-center" style={{ borderTop: `4px solid ${agent.color}` }}>
+            <Portrait agent={agent.id} size={88} />
+            <h2 className="display text-2xl leading-none" style={{ color: agent.color }}>{agent.aka}</h2>
+            <p className="text-sm font-semibold text-[#e8e0ff]">{agent.name}</p>
+            <p className="text-xs text-[#a89bb8]">{agent.tagline}</p>
+            <p className="mt-1 text-sm text-[#cbbfe0]">{agent.wants}</p>
           </article>
         ))}
       </section>
 
-      <section className="hard grid gap-4 bg-[#1c140f] p-5 text-[#fff8ef] sm:grid-cols-3">
+      <section className="broadcast-card grid gap-4 p-5 sm:grid-cols-3">
         <div>
-          <h2 className="display text-2xl text-[#ffb703]">Webflow de verdad</h2>
-          <p className="mt-2 text-sm leading-relaxed">El living es el Designer: páginas, secciones, clases, Collection List y campos.</p>
+          <h2 className="display text-2xl text-[#f5c542]">Prueba semanal</h2>
+          <p className="mt-2 text-sm leading-relaxed text-[#cbbfe0]">
+            Construyen el sitio del cliente en el living. Ves el preview, no el código.
+          </p>
         </div>
         <div>
-          <h2 className="display text-2xl text-[#ff3d8a]">Cloud + bindings</h2>
-          <p className="mt-2 text-sm leading-relaxed">D1 guarda la temporada, KV el estado caliente, R2 los entregables.</p>
+          <h2 className="display text-2xl text-[#ff2d6a]">Confesionario</h2>
+          <p className="mt-2 text-sm leading-relaxed text-[#cbbfe0]">
+            Cortes a cámara, alianzas y traiciones. El drama meter no miente.
+          </p>
         </div>
         <div>
-          <h2 className="display text-2xl text-[#7dffe0]">Data API y MCP</h2>
-          <p className="mt-2 text-sm leading-relaxed">El Tryhard deja un playbook de tools y, si hay token, pega las llamadas.</p>
+          <h2 className="display text-2xl text-[#2de2e6]">Gala en vivo</h2>
+          <p className="mt-2 text-sm leading-relaxed text-[#cbbfe0]">
+            Votá a quién salvar, tirales una bomba de caos y mirá quién sobrevive al timbre.
+          </p>
         </div>
       </section>
     </main>

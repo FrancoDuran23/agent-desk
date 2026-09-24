@@ -24,7 +24,7 @@ export async function spiceDraft(
       {
         role: "system",
         content:
-          "Escribís condimentos para un reality de roommates en español rioplatense, tono jujuy.dev / Nerdearla. Nada de copy corporativo, nada de sinergia, nada de líderes. Devolvé solo JSON.",
+          "Escribís condimentos para un reality show de roommates en español rioplatense (tipo Gran Hermano / Love Island). Nada de copy corporativo, nada de sinergia, nada de líderes. Devolvé solo JSON.",
       },
       {
         role: "user",

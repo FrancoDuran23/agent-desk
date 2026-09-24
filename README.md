@@ -2,9 +2,9 @@
 
 [![Deploy to Webflow](https://webflow.com/img/deploy-dark.svg)](https://webflow.com/dashboard/cloud/deploy?repo=https://github.com/FrancoDuran23/agent-desk/)
 
-Un reality / sitcom para el **Webflow Cloud × Nerdearla 2026 App Challenge**.
+Un reality show en vivo: cuatro roommates, una prueba semanal y una gala de eliminación.
 
-Cuatro roommates tienen que dejar un sitio Webflow listo antes de que el casero los desaloje. El usuario no es el jefe del crew: es la producción. Puede salvar a alguien, vetar una frase o tirar una bomba de caos. El living de la casa **es** el canvas de Webflow — páginas, secciones, clases, Collection Lists, campos, componentes, assets y variables — y se mueve mientras discuten.
+Cuatro roommates viven en la casa y tienen que entregar el sitio del cliente antes de la gala. Vos sos la producción: podés salvar a alguien, vetar una frase o tirar una bomba de caos. En el living se arma la prueba semanal — y el público ve el preview del sitio, no el código.
 
 ## Para quien evalúa desde Webflow
 

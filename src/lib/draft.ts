@@ -35,7 +35,7 @@ function item(name: string, data: Record<string, string | number | boolean>): Wf
 export function buildDraft(goal: string): SeasonDraft {
   const clean = clip(goal, 400);
   const lower = clean.toLowerCase();
-  const event = /meetup|after|nerdearla|hackathon|charla|comunidad|jujuy|evento|patio|wifi|factura/.test(lower);
+  const event = /meetup|after|charla|comunidad|evento|patio|wifi|factura|feria|lanzamiento/.test(lower);
   const roast = looksCorporate(clean)
     ? `Leí “${clip(clean, 80)}” y sentí un LinkedIn abriéndose solo. Eso no entra a esta casa.`
     : `Objetivo anotado en la heladera: “${clip(clean, 90)}”. Si se pone solemne, lo tachamos.`;
@@ -45,16 +45,10 @@ export function buildDraft(goal: string): SeasonDraft {
 }
 
 function eventDraft(goal: string, lower: string, roast: string): SeasonDraft {
-  const jujuy = /jujuy/.test(lower);
-  const nerde = /nerdearla/.test(lower);
-  const shipName = jujuy ? "jujuy.dev en casa" : nerde ? "Nerdearla en el living" : "El after con wifi";
-  const poeticName = jujuy
-    ? "La noche que el cerro prendió el wifi"
-    : nerde
-      ? "El after que se volvió temporada"
-      : "Crónica de un meetup que sí arrancó";
-  const memeName = jujuy ? "Facturas & pull requests" : nerde ? "Sticker, mate y deploy" : "Hay wifi, hay gente";
-  const slugTitle = jujuy ? "Jujuy Dev Casa" : "Meetup Casa";
+  const shipName = "El after con wifi";
+  const poeticName = "Crónica de un meetup que sí arrancó";
+  const memeName = "Hay wifi, hay gente";
+  const slugTitle = "Meetup Casa";
 
   const resumen = field("Resumen", "PlainText", "Una frase que se puede leer en voz alta sin vergüenza.");
   const empieza = field("Empieza", "DateTime", "Horario de cartel. El real va 25 minutos después.");
@@ -86,15 +80,15 @@ function eventDraft(goal: string, lower: string, roast: string): SeasonDraft {
     items: [
       item("Apertura en el patio", {
         [resumen.slug]: "Alguien habla. Alguien sirve mate. El micrófono es opcional.",
-        [donde.slug]: jujuy ? "Un patio con vista a los cerros" : "El patio / el living / donde haya enchufe",
-        [link.slug]: "https://nerdearla.com",
+        [donde.slug]: "El patio / el living / donde haya enchufe",
+        [link.slug]: "https://example.com/after",
         [facturas.slug]: true,
         [twist.slug]: "El horario de cartel era mentira y estuvo bien.",
       }),
       item("Mesa de stickers", {
         [resumen.slug]: "La mesa más honesta del evento. Nadie pide QR de sponsor.",
         [donde.slug]: "Al lado del router",
-        [link.slug]: "https://jujuy.dev",
+        [link.slug]: "https://example.com/meetup",
         [facturas.slug]: true,
         [twist.slug]: "El sticker más feo fue el que se agotó.",
       }),
@@ -139,7 +133,7 @@ function eventDraft(goal: string, lower: string, roast: string): SeasonDraft {
       name: "Mapa del caos",
       className: "section_map",
       variant: "generic",
-      heading: jujuy ? "Dónde hay wifi y dónde hay cerro" : "Dónde enchufar y dónde charlar",
+      heading: "Dónde enchufar y dónde charlar",
       body: "Un bloque de texto, un link, cero mapa incrustado que no carga.",
       cta: "Cómo llegar",
       owner: "ansioso",
@@ -168,9 +162,7 @@ function eventDraft(goal: string, lower: string, roast: string): SeasonDraft {
     slugTitle,
     pageSlug: slugify(shipName),
     thesis: clip(`${shipName}: ${goal}`, 180),
-    twist: jujuy
-      ? "El plot twist es que la mejor charla pasó mientras buscaban el wifi del patio."
-      : "El plot twist es que el after fue la charla, y la charla fue el grupo yéndose tarde.",
+    twist: "El plot twist es que el after fue la charla, y la charla fue el grupo yéndose tarde.",
     vibe: "Mate, sticker, tipo grande, cero gradiente de startup",
     bland: {
       headline: "Potenciá tu comunidad con una experiencia innovadora",
@@ -178,7 +170,7 @@ function eventDraft(goal: string, lower: string, roast: string): SeasonDraft {
       cta: "Quiero potenciarme",
     },
     good: {
-      headline: jujuy ? "El cerro no tiene CTA. El patio sí." : "Vení. Hay wifi, hay gente, hay después.",
+      headline: "Vení. Hay wifi, hay gente, hay después.",
       body: clip(goal, 220),
       cta: "Anotarme sin discurso",
     },

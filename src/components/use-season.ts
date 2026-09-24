@@ -10,13 +10,36 @@ export function useSeason(id: string) {
   const [booting, setBooting] = useState(true);
 
   useEffect(() => {
+    let cancelled = false;
+
+    async function loadSnapshot() {
+      try {
+        const response = await fetch(withBase(`/api/runs/${id}`));
+        const data = (await response.json()) as PublicRun | { error?: string };
+        if (cancelled || !("id" in data)) return;
+        setRun((prev) => ({
+          ...data,
+          publishResult: data.publishResult ?? prev?.publishResult,
+        }));
+        setBooting(false);
+      } catch {
+        /* stream still tries */
+      }
+    }
+
+    void loadSnapshot();
+
     const source = new EventSource(withBase(`/api/runs/${id}/stream`));
     source.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data) as { type?: string; run?: PublicRun; message?: string };
         if (data.type === "error") setError(data.message || "Se cortó la temporada.");
         if (data.run) {
-          setRun((prev) => data.run ? { ...data.run, publishResult: data.run.publishResult ?? prev?.publishResult } : prev);
+          setRun((prev) =>
+            data.run
+              ? { ...data.run, publishResult: data.run.publishResult ?? prev?.publishResult }
+              : prev,
+          );
           setBooting(false);
         }
       } catch {
@@ -24,9 +47,15 @@ export function useSeason(id: string) {
       }
     };
     source.onerror = () => {
-      if (source.readyState === EventSource.CLOSED) setError((current) => current || "Se cortó el vivo.");
+      if (source.readyState === EventSource.CLOSED) {
+        setError((current) => current || "Se cortó el vivo.");
+      }
     };
-    return () => source.close();
+
+    return () => {
+      cancelled = true;
+      source.close();
+    };
   }, [id]);
 
   async function act(action: Intervention) {

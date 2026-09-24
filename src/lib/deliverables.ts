@@ -42,7 +42,7 @@ export function briefMarkdown(pub: PublicRun): string {
     const who = moment.agent === "casa" ? "La casa" : AGENTS[moment.agent].aka;
     lines.push(`- **${who}:** ${moment.text}`);
   }
-  lines.push("", "_Casa de agentes · Webflow Cloud × Nerdearla 2026_");
+  lines.push("", "_Casa de agentes · Reality en vivo_");
   return lines.join("\n");
 }
 

@@ -13,36 +13,36 @@ export function weaveSeason(draft: SeasonDraft, goal: string): Beat[] {
   beats.push({
     id: id(),
     kind: "round",
-    title: "Ronda 1",
-    subtitle: "¿Cómo se llama esta cosa?",
+    title: "Episodio 1",
+    subtitle: "La pelea por el nombre",
     delay: 500,
     dropMs: 10000,
   });
-  chat("casero", "Bienvenidos. El alquiler se cobra en entregable. El reloj ya está corriendo.", {
+  chat("casero", "Bienvenidos a la casa. El alquiler se cobra con la prueba semanal. El reloj ya corre.", {
     highlight: true,
   });
-  chat("ansioso", `Objetivo en la mesa: “${goal}”. Yo ya abriría el deploy.`);
-  chat("dramatica", "Pará. Si arrancamos por Publish, esta temporada no tiene corazón.");
-  chat("tryhard", "Corazón después. Primero el slug, los campos y un componente que se pueda reusar.");
+  chat("ansioso", `Brief en la mesa: “${goal}”. Yo ya tendría el sitio cerrado y listo.`);
+  chat("dramatica", "Pará. Si arrancamos apurados, esta temporada no tiene corazón. Yo quiero lágrimas en el héroe.");
+  chat("tryhard", "Corazón después. Primero un nombre limpio y una estructura que no se caiga en la gala.");
   chat("meme", draft.roast, { highlight: true, delay: 780 });
   beats.push({
     id: id(),
     kind: "aside",
-    text: "Mateo se metió al confesionario con el timer en la mano.",
+    text: "Mateo se escapó al confesionario con el timer en la mano. En el living, silencio raro.",
     delay: 420,
   });
   beats.push({
     id: id(),
     kind: "confession",
     agent: "ansioso",
-    text: "No es ansiedad, es fecha. Si el hero no tiene botón cuando suene el timbre, Don Hugo nos deja en la vereda.",
+    text: "No es ansiedad, es supervivencia. Si la prueba no está cuando suene el timbre, Don Hugo nos deja en la vereda. Y yo no vine a ser el eliminado.",
     delay: 900,
     highlight: true,
   });
-  chat("ansioso", `Nombre para shippear hoy: “${draft.shipName}”.`);
-  chat("dramatica", `Nombre con arco: “${draft.poeticName}”.`);
-  chat("tryhard", `Si no entra en un slug decente, no existe. Yo voto “${draft.slugTitle}”.`);
-  chat("meme", `“${draft.memeName}”. Si parece keynote, lo saco de la heladera.`, { highlight: true });
+  chat("ansioso", `Nombre para entregar hoy: “${draft.shipName}”. Corto, claro, listo.`);
+  chat("dramatica", `Nombre con arco: “${draft.poeticName}”. Si no emociona, no entra.`);
+  chat("tryhard", `Si no queda prolijo en el cartel, no existe. Yo voto “${draft.slugTitle}”.`);
+  chat("meme", `“${draft.memeName}”. Si parece discurso de empresa, lo tiro a la heladera.`, { highlight: true });
   beats.push({
     id: id(),
     kind: "confession",
@@ -60,7 +60,7 @@ export function weaveSeason(draft: SeasonDraft, goal: string): Beat[] {
       { agent: "tryhard", choice: draft.slugTitle },
       { agent: "meme", choice: draft.memeName },
     ],
-    winner: "Empate. La producción tiene que salvar a alguien.",
+    winner: "Empate. Se arma la placa. La producción tiene que salvar a alguien.",
     delay: 700,
     highlight: true,
   });
@@ -71,28 +71,28 @@ export function weaveSeason(draft: SeasonDraft, goal: string): Beat[] {
     prompt: {
       id: uid("prompt"),
       kind: "salvar",
-      title: "La producción corta",
-      body: "El nombre está por cerrarse y hay lío en el pasillo. ¿A quién salvás?",
+      title: "Placa de nominados",
+      body: "El nombre está por cerrarse y hay humo en el pasillo. ¿A quién salvás de la eliminación?",
     },
   });
 
   beats.push({
     id: id(),
     kind: "round",
-    title: "Ronda 2",
-    subtitle: "El living es una página Webflow",
+    title: "Episodio 2",
+    subtitle: "Prueba semanal: armar el sitio",
     delay: 500,
     dropMs: 8000,
   });
-  chat("tryhard", "Navigator abierto. Home existe. Ahora secciones, no un solo div con sombra.");
-  chat("dramatica", "El hero es el póster del living. El resto tiene que contar lo que pasa después.");
-  chat("ansioso", "Cuatro bloques y un botón. Si Facu pide un componente más, lo miramos feo.");
+  chat("tryhard", "Arranca la prueba. Home en blanco. Ahora hay que llenar el living de secciones de verdad.");
+  chat("dramatica", "El héroe es el póster de la casa. Si no duele un poquito, no sirve.");
+  chat("ansioso", "Cuatro bloques y un botón. Si Facu pide otra cosa más, lo nominamos entre todos.");
   for (const section of draft.sections) {
     chat(
       section.owner,
       section.variant === "agenda"
-        ? `Collection List contra ${section.binding}. Si el horario cambia, cambia el ítem, no el PNG.`
-        : `Entra “${section.name}”. ${section.heading}`,
+        ? `Lista viva de ${section.binding}. Si cambia el horario, cambia el cartel — no un PNG mentiroso.`
+        : `Suma “${section.name}” al living. ${section.heading}`,
       { delay: 540 },
     );
     beats.push({
@@ -109,37 +109,37 @@ export function weaveSeason(draft: SeasonDraft, goal: string): Beat[] {
     id: id(),
     kind: "confession",
     agent: "tryhard",
-    text: "Me acusan de overengineering y después me piden que la agenda no se rompa. El CMS no es un capricho, es el placard.",
+    text: "Me acusan de complicar todo y después me piden que la agenda no se rompa. Organizar la casa no es un capricho, es el placard.",
     delay: 860,
   });
 
   beats.push({
     id: id(),
     kind: "round",
-    title: "Ronda 3",
-    subtitle: "Copy que no parezca LinkedIn",
+    title: "Episodio 3",
+    subtitle: "La pelea de la copy",
     delay: 480,
     dropMs: 8000,
   });
-  chat("ansioso", `Mateo pega la versión rápida: “${draft.bland.headline}”.`, { delay: 560 });
+  chat("ansioso", `Mateo tira la versión segura: “${draft.bland.headline}”.`, { delay: 560 });
   beats.push({
     id: id(),
     kind: "canvas",
     agent: "ansioso",
-    caption: "Hero corporativo (va a durar poco)",
+    caption: "Héroe corporativo (va a durar poco)",
     delay: 640,
     focusId: "sec-hero",
     skipIfCopyLocked: true,
     patch: { upsertElements: [heroElement(draft.bland, "ansioso", "sketch")] },
   });
-  chat("meme", "No. “Potenciar”, “ecosistema” y “líderes” se quedan en el palier.", { highlight: true });
-  chat("dramatica", `Entonces el hero dice la verdad: “${draft.good.headline}”`);
-  chat("tryhard", "El H1 es un Heading, clase heading-xl, un solo Button. No dos CTAs.");
+  chat("meme", "No. “Potenciar”, “ecosistema” y “líderes” se quedan en el palier. Esto es un reality, no un linkedin.", { highlight: true });
+  chat("dramatica", `Entonces el héroe dice la verdad: “${draft.good.headline}”`);
+  chat("tryhard", "Un solo título fuerte, una sola bajada, un solo botón. Si hay dos llamadas a la acción, hay drama.");
   beats.push({
     id: id(),
     kind: "canvas",
     agent: "meme",
-    caption: "Hero reescrito",
+    caption: "Héroe reescrito",
     delay: 720,
     focusId: "sec-hero-h",
     skipIfCopyLocked: true,
@@ -150,7 +150,7 @@ export function weaveSeason(draft: SeasonDraft, goal: string): Beat[] {
     id: id(),
     kind: "confession",
     agent: "meme",
-    text: "No odio a la IA. Odio cuando una landing suena a mail de recursos humanos. Si el botón dice “potenciarme”, lo desenchufo.",
+    text: "No odio a nadie. Odio cuando el sitio suena a mail de recursos humanos. Si el botón dice “potenciarme”, lo desenchufo delante de las cámaras.",
     delay: 900,
     highlight: true,
   });
@@ -158,14 +158,14 @@ export function weaveSeason(draft: SeasonDraft, goal: string): Beat[] {
   beats.push({
     id: id(),
     kind: "round",
-    title: "Ronda 4",
-    subtitle: "El placard CMS",
+    title: "Episodio 4",
+    subtitle: "El placard de la prueba",
     delay: 480,
     dropMs: 8000,
   });
   chat(
     "tryhard",
-    `Colección ${draft.collection.displayName}. ${draft.bloatedFields.length} campos. Incluye cosas que vamos a discutir.`,
+    `Armamos el placard “${draft.collection.displayName}” con ${draft.bloatedFields.length} casilleros. Algunos van a volar.`,
     { highlight: true },
   );
   beats.push({
@@ -179,9 +179,9 @@ export function weaveSeason(draft: SeasonDraft, goal: string): Beat[] {
       upsertCollections: [{ ...draft.collection, fields: draft.bloatedFields, cuts: [] }],
     },
   });
-  chat("meme", "NFT eligible, nota interna y override de slug. Facu, eso no es un schema, es un sótano.");
-  chat("dramatica", "El plot twist se queda. Es el único campo con pulso.");
-  chat("ansioso", "Si el ítem no se puede cargar en un minuto, el campo sobra.");
+  chat("meme", "¿NFT eligible? ¿Nota interna? Facu, eso no es un placard, es un sótano.");
+  chat("dramatica", "El plot twist se queda. Es lo único con pulso en toda la casa.");
+  chat("ansioso", "Si no se puede cargar en un minuto, sobra. Punto.");
   const junk = draft.bloatedFields.filter(
     (item) => !draft.collection.fields.some((kept) => kept.slug === item.slug),
   );
@@ -191,7 +191,7 @@ export function weaveSeason(draft: SeasonDraft, goal: string): Beat[] {
       id: id(),
       kind: "canvas",
       agent: "meme",
-      caption: `Tacha ${field.displayName}`,
+      caption: `Tacha ${field.displayName} en vivo`,
       delay: 520,
       focusId: `cms-${draft.collection.slug}`,
       patch: { cutField: { collectionSlug: draft.collection.slug, fieldSlug: field.slug } },
@@ -200,26 +200,26 @@ export function weaveSeason(draft: SeasonDraft, goal: string): Beat[] {
   beats.push({
     id: id(),
     kind: "vote",
-    topic: "¿Qué campos sobreviven?",
+    topic: "¿Qué queda en el placard?",
     tally: [
-      { agent: "tryhard", choice: `${draft.bloatedFields.length} campos` },
+      { agent: "tryhard", choice: `${draft.bloatedFields.length} casilleros` },
       { agent: "meme", choice: "sin NFT ni sótano" },
       { agent: "dramatica", choice: "plot twist se queda" },
-      { agent: "ansioso", choice: "los que se cargan ya" },
+      { agent: "ansioso", choice: "solo lo que se carga ya" },
     ],
-    winner: `${draft.collection.fields.length} campos. El resto, tachado.`,
+    winner: `${draft.collection.fields.length} casilleros. El resto, tachado en gala.`,
     delay: 680,
   });
 
   beats.push({
     id: id(),
     kind: "round",
-    title: "Ronda 5",
-    subtitle: "Componentes, assets y el timbre",
+    title: "Episodio 5",
+    subtitle: "Cierre antes del timbre",
     delay: 480,
     dropMs: 12000,
   });
-  chat("tryhard", "HeroPoster y la card del CMS, con props. Si no es componente, se va a copiar mal.");
+  chat("tryhard", "Dejamos piezas reutilizables: el póster y la tarjeta del placard. Si no, se copia mal en la gala.");
   beats.push({
     id: id(),
     kind: "canvas",
@@ -228,7 +228,7 @@ export function weaveSeason(draft: SeasonDraft, goal: string): Beat[] {
     delay: 640,
     patch: { upsertComponents: draft.components },
   });
-  chat("dramatica", `Variables ${draft.variables.map((variable) => variable.name).join(", ")}. La casa tiene paleta, no un gradiente violeta.`);
+  chat("dramatica", `Paleta de la casa: ${draft.variables.map((variable) => variable.name).join(", ")}. Nada de gradiente violeta de startup.`);
   beats.push({
     id: id(),
     kind: "canvas",
@@ -237,7 +237,7 @@ export function weaveSeason(draft: SeasonDraft, goal: string): Beat[] {
     delay: 560,
     patch: { upsertVariables: draft.variables },
   });
-  chat("meme", `Alt del póster: “${draft.assets[0]?.alt ?? "gente real"}”. Nada de stock apretándose la mano.`);
+  chat("meme", `Pie del póster: “${draft.assets[0]?.alt ?? "gente real"}”. Nada de stock apretándose la mano.`);
   beats.push({
     id: id(),
     kind: "canvas",
@@ -250,16 +250,16 @@ export function weaveSeason(draft: SeasonDraft, goal: string): Beat[] {
     id: id(),
     kind: "confession",
     agent: "casero",
-    text: "Yo no entiendo de colecciones. Entiendo de contrato. Si hay página, campos e ítems, esta temporada no duerme en la vereda.",
+    text: "Yo no entiendo de placares digitales. Entiendo de contrato. Si hay sitio entregado, esta temporada no duerme en la vereda.",
     delay: 860,
     highlight: true,
   });
-  chat("ansioso", "Lock. Se exporta el JSON, el playbook y, si hay token, se publica.");
+  chat("ansioso", "Cerramos. La producción se lleva el resultado de la prueba. Si hay señal, se publica.");
   beats.push({
     id: id(),
     kind: "canvas",
     agent: "ansioso",
-    caption: "Lock de temporada",
+    caption: "Cierre de temporada",
     delay: 600,
     patch: { lockAll: true },
   });
@@ -267,7 +267,7 @@ export function weaveSeason(draft: SeasonDraft, goal: string): Beat[] {
     id: id(),
     kind: "finale",
     verdict: "sobreviven",
-    line: "Sobreviven al alquiler. El living quedó con página, CMS y un playbook que un agente de Webflow puede correr.",
+    line: "Sobreviven al alquiler. La prueba semanal está entregada. Esta noche hay gala… y hay casa.",
     delay: 700,
     highlight: true,
   });
@@ -280,7 +280,7 @@ export function evictionBeat(): Beat {
     id: uid("fin"),
     kind: "finale",
     verdict: "desalojo",
-    line: "Sonó el timbre. Se llevan lo que haya en el canvas: es un desalojo con JSON, no con las manos vacías.",
+    line: "Sonó el timbre. Se llevan lo que haya de la prueba: es un desalojo con entrega, no con las manos vacías.",
     delay: 400,
     highlight: true,
   };
