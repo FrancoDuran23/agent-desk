@@ -192,6 +192,7 @@ export function redact(input: string): { text: string; redactions: Redaction[] }
   text = sub(text, /\+\s*54\s*(?:9\s*)?(?:\d[\s().-]*){8,16}\d/g, () => push("telefono", "un teléfono que se omite"));
   text = sub(text, /\b0?\d{2,4}[\s.-]*15[\s.-]*\d{3,4}[\s.-]*\d{4}\b/g, () => push("telefono", "un teléfono que se omite"));
   text = sub(text, /\b0?\d{2,4}\s+\d{4}[\s.-]\d{4}\b/g, () => push("telefono", "un teléfono que se omite"));
+  text = redactLoosePhones(text, push);
   text = sub(
     text,
     /\b(?:tel(?:efono|éfono)?|celular|cel\.?|whatsapp|wsp\.?|telefono)\s*[:.]?\s*\+?\d[\d\s().-]{6,20}\d/gi,
@@ -221,6 +222,7 @@ export function redact(input: string): { text: string; redactions: Redaction[] }
   );
 
   text = redactTriggeredNames(text, push);
+  text = redactLooseInitials(text, push);
   text = redactCapitalPairs(text, push);
   text = tidyRoles(text);
   text = text.replace(/\b(del|al|el|la)\s+la institución\b/gi, (_match, article: string) => {
@@ -234,6 +236,108 @@ export function redact(input: string): { text: string; redactions: Redaction[] }
     text: text.replace(/[ \t]{2,}/g, " ").replace(/[ \t]+\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim(),
     redactions,
   };
+}
+
+const PERSON_NOUN =
+  /\b(?:alumnas|alumnos|alumna|alumno|estudiantes|estudiante|nenas|nenes|nena|nene|niñas|niños|niña|niño|menores|menor|hijas|hijos|hija|hijo|vecinas|vecinos|vecina|vecino|adolescentes|adolescente|chicas|chicos|chica|chico|compañeras|compañeros|compañera|compañero|madres|madre|padres|padre|mamá|mama|papá|papa)\b/i;
+
+const ROLE_TAIL =
+  /(?:\b(?:la|el|una|un|las|los|su|sus)\s+)?(alumnas|alumnos|alumna|alumno|estudiantes|estudiante|nenas|nenes|nena|nene|niñas|niños|niña|niño|menores|menor|hijas|hijos|hija|hijo|vecinas|vecinos|vecina|vecino|madres|madre|padres|padre|mamá|mama|papá|papa)\s+$/i;
+
+const NAME_FOLLOW =
+  /^\s*,?\s*(?:tiene|tenía|tenia|dijo|dice|vive|vivía|vivia|llora|lloraba|falta|llegó|llego|llega|contó|conto|vino|está|esta|estaba|iba|va|fue|es|son)\b/i;
+
+const NAME_BEFORE = /\b(?:a|al|de|del|con|para|por)\s+$/i;
+
+const ROMAN = new Set([
+  "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII", "XIII", "XIV", "XV", "XVI", "XVII", "XVIII", "XIX", "XX",
+]);
+
+const INITIAL_BLOCK = new Set([
+  "DNI", "CUIL", "CUIT", "CABA", "AMBA", "ONG", "OK", "SOS", "IVA", "UF", "SA", "SRL", "EEUU", "ONU", "PAMI", "AFIP",
+  "AM", "PM", "ES", "EL", "LA", "UN", "SE", "ME", "SU", "YO", "LO", "AL", "NO", "SI", "YA", "HOY",
+  ...ROMAN,
+]);
+
+function lettersOf(token: string): string {
+  return token.normalize("NFD").replace(/\p{M}/gu, "").replace(/[^A-Za-z]/g, "").toUpperCase();
+}
+
+function readInitialToken(rest: string): { name: string; length: number } | null {
+  let index = 0;
+  while (index < rest.length && /[\s,;:]/.test(rest[index] ?? "")) index += 1;
+  const slice = rest.slice(index);
+  const dotted = /^[A-ZÁÉÍÓÚÑ](?:\.\s*[A-ZÁÉÍÓÚÑ])+\.?/.exec(slice);
+  if (dotted && !INITIAL_BLOCK.has(lettersOf(dotted[0]))) {
+    return { name: dotted[0], length: index + dotted[0].length };
+  }
+  const bare = /^[A-ZÁÉÍÓÚÑ]{2,3}(?![A-Za-zÁÉÍÓÚáéíóúÑñ])/.exec(slice);
+  if (bare && !INITIAL_BLOCK.has(bare[0]) && !ROMAN.has(bare[0])) {
+    return { name: bare[0], length: index + bare[0].length };
+  }
+  return null;
+}
+
+function replacementForInitial(
+  before: string,
+  after: string,
+  push: (kind: RedactionKind, replacement: string) => string,
+): string {
+  const role = ROLE_TAIL.exec(before);
+  if (role?.[1]) {
+    push("nombre", labelForRoleWord(role[1]) ?? "[nombre omitido]");
+    return "";
+  }
+  const guessed = roleForName(before, after);
+  return push("nombre", guessed === "una persona" ? "[nombre omitido]" : guessed);
+}
+
+function redactLooseInitials(text: string, push: (kind: RedactionKind, replacement: string) => string): string {
+  const dotted = sub(text, /(?<![A-Za-zÁÉÍÓÚáéíóúÑñ])[A-ZÁÉÍÓÚÑ](?:\.\s*[A-ZÁÉÍÓÚÑ])+\.?/g, (match) => {
+    if (INITIAL_BLOCK.has(lettersOf(match[0]))) return match[0];
+    const before = (match.input ?? "").slice(0, match.index ?? 0);
+    const after = (match.input ?? "").slice((match.index ?? 0) + match[0].length);
+    return replacementForInitial(before, after, push);
+  });
+  return sub(dotted, /(?<![A-Za-zÁÉÍÓÚáéíóúÑñ])[A-ZÁÉÍÓÚÑ]{2,3}(?![A-Za-zÁÉÍÓÚáéíóúÑñ])/g, (match) => {
+    const token = match[0];
+    if (INITIAL_BLOCK.has(token) || ROMAN.has(token)) return token;
+    const before = (match.input ?? "").slice(0, match.index ?? 0);
+    const after = (match.input ?? "").slice((match.index ?? 0) + token.length);
+    if (!ROLE_TAIL.test(before) && !NAME_FOLLOW.test(after) && !NAME_BEFORE.test(before)) return token;
+    return replacementForInitial(before, after, push);
+  });
+}
+
+function isCalendarNumber(raw: string): boolean {
+  const compact = raw.replace(/[()\s]/g, "");
+  const dmy = /^(\d{1,2})-(\d{1,2})-(\d{2,4})$/.exec(compact);
+  if (dmy) {
+    const left = Number(dmy[1]);
+    const right = Number(dmy[2]);
+    if (left >= 1 && left <= 31 && right >= 1 && right <= 12) return true;
+  }
+  const ymd = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(compact);
+  if (ymd) {
+    const month = Number(ymd[2]);
+    const day = Number(ymd[3]);
+    if (month >= 1 && month <= 12 && day >= 1 && day <= 31) return true;
+  }
+  return /^(?:19|20)\d{2}-(?:19|20)\d{2}$/.test(compact);
+}
+
+function redactLoosePhones(text: string, push: (kind: RedactionKind, replacement: string) => string): string {
+  return sub(text, /(?<![\d/])\(?\d(?:[\d\s()-]{0,4}\d){6,14}\)?(?![\d/])/gu, (match) => {
+    const raw = match[0];
+    const digits = raw.replace(/\D/g, "");
+    if (digits.length < 7 || digits.length > 15) return raw;
+    if (!/[\s()-]/.test(raw) && digits.length < 10) return raw;
+    if (isCalendarNumber(raw)) return raw;
+    const before = (match.input ?? "").slice(0, match.index ?? 0);
+    const after = (match.input ?? "").slice((match.index ?? 0) + raw.length);
+    if (/^\s*años?\b/i.test(after) || /\baños?\s*$/i.test(before)) return raw;
+    return push("telefono", "un teléfono que se omite");
+  });
 }
 
 function redactTriggeredNames(
@@ -254,7 +358,8 @@ function redactTriggeredNames(
     const trigger = match[0];
     const nameStart = match.index + trigger.length;
     const callsName = /me llamo|se llama|se llaman|llamad|de nombre|cuyo nombre|nombre es/i.test(trigger);
-    const found = readName(text.slice(nameStart), callsName ? "any" : "capital");
+    const rest = text.slice(nameStart);
+    const found = readInitialToken(rest) ?? readName(rest, callsName ? "any" : "capital");
     if (!found) {
       out += text.slice(cursor, nameStart);
       cursor = nameStart;
@@ -292,7 +397,11 @@ function redactTriggeredNames(
 }
 
 function omitNamingClause(before: string, after: string): { text: string; skipAfter: number } | null {
-  const head = before.replace(/[ \t]+$/g, "").replace(/,[ \t]*$/g, "").replace(/[ \t]+$/g, "");
+  let head = before.replace(/[ \t]+$/g, "").replace(/,[ \t]*$/g, "").replace(/[ \t]+$/g, "");
+  const que = /^(.*)\s+(?:que|quien|quién)$/i.exec(head);
+  if (que && PERSON_NOUN.test(que[1] ?? "")) {
+    head = (que[1] ?? "").replace(/[ \t]+$/g, "").replace(/,[ \t]*$/g, "").replace(/[ \t]+$/g, "");
+  }
   const last = (head.split(/[.!?\n]/).pop() ?? "").trim().split(/\s+/).pop() ?? "";
   if (/^(?:que|quien|quién|como|porque|cuando|donde|dónde|y|e|o|u|pero|de|a|al|su|sus|el|la|un|una)$/i.test(last)) {
     return null;

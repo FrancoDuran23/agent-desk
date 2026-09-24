@@ -1,5 +1,5 @@
 import { buildDelivery } from "@/lib/delivery";
-import { isProvince } from "@/lib/jurisdictions";
+import { normalizeProvince } from "@/lib/jurisdictions";
 import { buildCase } from "@/lib/pipeline";
 import { saveCase } from "@/lib/store";
 import type { AttachmentMeta, CaseRecord } from "@/lib/types";
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
         : "Contanos qué viste, con un poco más de contexto. No hace falta dar nombres ni detalles gráficos.";
     return NextResponse.json({ error }, { status: 400 });
   }
-  const province = typeof body?.province === "string" && isProvince(body.province) ? body.province : "";
+  const province = typeof body?.province === "string" ? normalizeProvince(body.province) : "";
   const built = await buildCase({
     narrative: narrative.text,
     province,

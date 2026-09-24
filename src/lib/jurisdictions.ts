@@ -46,25 +46,44 @@ const SPECIFIC: Record<string, Pick<Jurisdiction, "authority" | "note">> = {
   },
 };
 
+function provinceSlug(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "")
+    .toLocaleLowerCase("es-AR")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+const PROVINCE_BY_SLUG = new Map<string, (typeof PROVINCES)[number]>(
+  PROVINCES.map((province) => [provinceSlug(province), province]),
+);
+
+export function normalizeProvince(value: string): (typeof PROVINCES)[number] | "" {
+  if (!value.trim()) return "";
+  return PROVINCE_BY_SLUG.get(provinceSlug(value)) ?? "";
+}
+
 export function isProvince(value: string): boolean {
-  return (PROVINCES as readonly string[]).includes(value);
+  return normalizeProvince(value) !== "";
 }
 
 export function describeJurisdiction(province: string): Jurisdiction {
-  if (!province || !isProvince(province)) {
+  const canonical = normalizeProvince(province);
+  if (!canonical) {
     return {
       label: "Argentina",
       authority: "Autoridad local de protección de derechos de niñas, niños y adolescentes",
       note: "Sin provincia, la referencia queda en la línea 102 y en la autoridad de aplicación de tu localidad. Si sabés la provincia, elegila: el nombre del organismo es más preciso.",
     };
   }
-  const specific = SPECIFIC[province];
+  const specific = SPECIFIC[canonical];
   if (specific) {
-    return { label: `Argentina · ${province}`, ...specific };
+    return { label: `Argentina · ${canonical}`, ...specific };
   }
   return {
-    label: `Argentina · ${province}`,
-    authority: `Autoridad de protección de derechos de niñas, niños y adolescentes de ${province}`,
-    note: `Confirmá en el gobierno de ${province} cuál es el área vigente y cómo recibe comunicaciones. Esta ficha no es un directorio oficial.`,
+    label: `Argentina · ${canonical}`,
+    authority: `Autoridad de protección de derechos de niñas, niños y adolescentes de ${canonical}`,
+    note: `Confirmá en el gobierno de ${canonical} cuál es el área vigente y cómo recibe comunicaciones.`,
   };
 }
