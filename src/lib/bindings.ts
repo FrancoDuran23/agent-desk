@@ -13,7 +13,7 @@ export async function resolveBindings(): Promise<ResolvedBindings | null> {
     const env = ctx?.env as unknown as Record<string, unknown> | undefined;
     if (!env) return null;
     const names = Object.keys(env).filter((key) =>
-      ["DB", "HOUSE", "SESSIONS", "MEDIA", "WEBFLOW_CLOUD_MEDIA", "FLAGS"].includes(key),
+      ["DB", "HOUSE", "SESSIONS", "MEDIA", "WEBFLOW_CLOUD_MEDIA"].includes(key),
     );
     const db = env.DB as D1Database | undefined;
     const kv = (env.HOUSE ?? env.SESSIONS) as KVNamespace | undefined;
@@ -36,7 +36,7 @@ export async function pingBindings(): Promise<{
       driver: "memory",
       names: [],
       services: {
-        d1: { status: "absent", latency: 0, error: "Sin binding DB en este proceso. npm run dev usa memoria; Webflow Cloud lo aprovisiona." },
+        d1: { status: "absent", latency: 0, error: "Sin binding DB en este proceso." },
         kv: { status: "absent", latency: 0 },
         r2: { status: "absent", latency: 0 },
       },
@@ -44,14 +44,14 @@ export async function pingBindings(): Promise<{
   }
 
   const services = {
-    d1: await ping("d1", resolved.db, async (db) => {
+    d1: await ping(resolved.db, async (db) => {
       await db.prepare("SELECT 1 AS ok").first();
     }),
-    kv: await ping("kv", resolved.kv, async (kv) => {
-      await kv.get("__casa_health__");
+    kv: await ping(resolved.kv, async (kv) => {
+      await kv.get("__cuidado_health__");
     }),
-    r2: await ping("r2", resolved.media, async (media) => {
-      await media.head("__casa_health__");
+    r2: await ping(resolved.media, async (media) => {
+      await media.head("__cuidado_health__");
     }),
   };
 
@@ -62,7 +62,6 @@ export async function pingBindings(): Promise<{
 }
 
 async function ping<T>(
-  _name: string,
   resource: T | undefined,
   fn: (resource: T) => Promise<void>,
 ): Promise<{ status: "ok" | "absent" | "error"; latency: number; error?: string }> {
